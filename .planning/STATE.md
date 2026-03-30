@@ -2,9 +2,9 @@
 
 ## Current Phase
 
-**Phase 1: MVP** — Context gathered, ready for planning
+**Phase 1: MVP** — Planned and verified, ready for execution
 
-**Next:** Run `/gsd:plan-phase 1` to create PLAN.md and begin implementation
+**Next:** Run `/gsd:execute-phase 1` to implement the weather signature service
 
 ## Project Reference
 
