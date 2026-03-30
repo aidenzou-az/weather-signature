@@ -4,13 +4,13 @@
 import { getCachedWeather } from '../lib/cache.js';
 import { getWeatherDescription } from '../lib/i18n.js';
 
-export default async function onRequest({ request, params, env }) {
+export async function onRequestGet({ request, params, env }) {
   try {
     // Read configuration from environment
     const city = env?.CITY || 'Beijing';
     const apiKey = env?.OPENWEATHER_API_KEY;
-    // EdgeOne KV binding - try global first, then env
-    const kv = typeof WEATHER_KV !== 'undefined' ? WEATHER_KV : env?.WEATHER_KV;
+    // EdgeOne KV is a global binding
+    const kv = WEATHER_KV;
 
     // Validate required environment variables
     if (!apiKey) {
