@@ -9,7 +9,8 @@ export default async function onRequest(context) {
     // Read configuration from environment
     const city = context.env.CITY || 'Beijing';
     const apiKey = context.env.OPENWEATHER_API_KEY;
-    const kv = context.env.WEATHER_KV;
+    // EdgeOne KV is bound as a global variable
+    const kv = typeof WEATHER_KV !== 'undefined' ? WEATHER_KV : context.env?.WEATHER_KV;
 
     // Validate required environment variables
     if (!apiKey) {
