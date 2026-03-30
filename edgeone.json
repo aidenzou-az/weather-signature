@@ -6,14 +6,16 @@
     "directory": "functions",
     "main": "index.js"
   },
-  "routes": [
+  "edgeFunctionsRoutes": [
     {
-      "pattern": "/",
-      "function": "index"
+      "routePath": "/",
+      "methods": ["GET"],
+      "runtime": "Edge"
     },
     {
-      "pattern": "/weather",
-      "function": "index"
+      "routePath": "/weather",
+      "methods": ["GET"],
+      "runtime": "Edge"
     }
   ],
   "compatibility_date": "2025-01-01",
