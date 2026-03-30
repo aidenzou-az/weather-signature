@@ -10,6 +10,7 @@
 ### Phase 1: MVP
 **Goal:** 基础天气展示功能
 **Requirements:** WTH-01~04, API-01~04, DEP-01~03
+**Plans:** 2 plans in 2 waves
 
 **Checklist:**
 - [ ] **1.1** 创建 Edge Function 获取天气数据
@@ -21,6 +22,10 @@
 - [ ] **UAT:** 飞书签名显示正确天气信息
 
 **Estimated:** 2-3 days
+
+**Plan List:**
+- [ ] 01-01-PLAN.md — Core weather service (Edge function, API client, KV cache, i18n)
+- [ ] 01-02-PLAN.md — Deployment docs (README, edgeone.json, .env.example)
 
 ---
 
