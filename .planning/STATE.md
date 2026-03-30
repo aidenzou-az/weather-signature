@@ -2,9 +2,10 @@
 
 ## Current Phase
 
-**Phase 1: MVP** — **COMPLETE** (2026-03-30)
+**Phase 1: MVP** — **SHIPPED** (2026-03-30)
 
-All 2 plans executed and verified. Phase goal achieved.
+PR created: `gsd/phase-01-mvp` → `main`
+Branch pushed with 7 commits
 
 ## Project Reference
 
@@ -17,7 +18,7 @@ See: `.planning/PROJECT.md` (updated 2026-03-30)
 
 | Phase | Started | Completed | Commit |
 |-------|---------|-----------|--------|
-| 01-mvp | 2026-03-30 | 2026-03-30 | f09c523 |
+| 01-mvp | 2026-03-30 | 2026-03-30 | 18e6dde |
 
 ## Current Blockers
 
@@ -27,13 +28,13 @@ None
 
 - **Branch:** main
 - **Uncommitted:** None
-- **Last action:** Phase 1 execution complete
+- **Last action:** Phase 1 shipped to PR
 
 ## Next Steps
 
 Milestone 1 is complete. Options:
-- `/gsd:ship` — Create PR and prepare for merge
-- `/gsd:new-milestone` — Start planning Milestone 2
+- Review and merge PR on GitHub
+- `/gsd:complete-milestone` — Archive Milestone 1
 - `/gsd:progress` — Review full project status
 
 ---
