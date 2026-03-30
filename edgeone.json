@@ -8,7 +8,11 @@
   },
   "routes": [
     {
-      "pattern": "/weather*",
+      "pattern": "/",
+      "function": "index"
+    },
+    {
+      "pattern": "/weather",
       "function": "index"
     }
   ],
