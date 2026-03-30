@@ -2,9 +2,9 @@
 
 ## Current Phase
 
-**None** — Project initialization complete, ready to start Phase 1
+**Phase 1: MVP** — Context gathered, ready for planning
 
-**Next:** Run `/gsd:plan-phase 1` to begin MVP implementation
+**Next:** Run `/gsd:plan-phase 1` to create PLAN.md and begin implementation
 
 ## Project Reference
 
