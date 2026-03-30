@@ -1,0 +1,22 @@
+{
+  "name": "weather-signature",
+  "version": "1.0.0",
+  "description": "Weather signature service for Feishu/Lark",
+  "functions": {
+    "directory": "functions",
+    "main": "index.js"
+  },
+  "routes": [
+    {
+      "pattern": "/",
+      "function": "index"
+    }
+  ],
+  "compatibility_date": "2025-01-01",
+  "kv_namespaces": [
+    {
+      "binding": "WEATHER_KV",
+      "id": "your-kv-namespace-id"
+    }
+  ]
+}
