@@ -1,54 +1,35 @@
 // Shared EdgeOne Pages Function handler for both "/" and "/weather"
 
-import { getCachedWeather } from '../lib/cache.js';
-import { getWeatherDescription } from '../lib/i18n.js';
+import { getWeatherPageData } from './page-data.js';
 
-export async function onRequestGet({ env }) {
+export async function onRequestGet({ request, env }) {
   try {
-    // Read configuration from environment
-    const city = env?.CITY || 'Beijing';
-    const apiKey = env?.OPENWEATHER_API_KEY;
-    // EdgeOne KV is a global binding
-    const kv = WEATHER_KV;
-
-    // Validate required environment variables
-    if (!apiKey) {
-      throw new Error('OPENWEATHER_API_KEY environment variable is required');
-    }
-    if (!kv) {
-      throw new Error('WEATHER_KV binding is required');
-    }
-
-    // Fetch weather data (cached or fresh)
-    const result = await getCachedWeather(kv, apiKey, city);
-    const weather = result.data;
-    const isStale = result.stale || false;
-
-    // Extract weather info
-    const temp = Math.round(weather.main.temp);
-    const conditionCode = weather.weather[0].id;
-    const condition = getWeatherDescription(conditionCode);
-
-    // Format current time (HH:MM)
-    const now = new Date();
-    const timeStr = now.toLocaleTimeString('zh-CN', {
-      hour: '2-digit',
-      minute: '2-digit',
-      hour12: false
-    });
-
-    // Format title: {城市} {温度}°C {天气} - {HH:MM}
-    const title = `${city} ${temp}°C ${condition} - ${timeStr}`;
+    const { city, temp, condition, timeStr, title, isStale } = await getWeatherPageData(env);
+    const url = new URL(request.url);
+    const canonicalUrl = url.toString();
+    const ogImageUrl = `${url.origin}/og-image${url.search}`;
 
     // Generate HTML response
     const html = `<!DOCTYPE html>
-<html lang="zh-CN">
+<html lang="zh-CN" prefix="og: https://ogp.me/ns#">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="${title}">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Weather Signature">
+  <meta property="og:url" content="${canonicalUrl}">
   <meta property="og:title" content="${title}">
   <meta property="og:description" content="${title}">
+  <meta property="og:image" content="${ogImageUrl}">
+  <meta property="og:image:type" content="image/svg+xml">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="${title}">
+  <meta name="twitter:description" content="${title}">
+  <meta name="twitter:image" content="${ogImageUrl}">
+  <link rel="canonical" href="${canonicalUrl}">
   <title>${title}</title>
   <style>
     body {
@@ -99,7 +80,7 @@ export async function onRequestGet({ env }) {
     return new Response(html, {
       headers: {
         'Content-Type': 'text/html; charset=utf-8',
-        'Cache-Control': 'no-cache'
+        'Cache-Control': 'no-cache, no-store, must-revalidate'
       }
     });
   } catch (error) {
