@@ -1,5 +1,5 @@
 {
   "version": 1,
-  "include": ["/", "/weather", "/content", "/s", "/og-image"],
+  "include": ["/", "/weather", "/og-image"],
   "exclude": []
 }

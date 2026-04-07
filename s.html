@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="zh-CN" prefix="og: https://ogp.me/ns#">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="飞书个人签名天气预览入口">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="Weather Signature">
+  <meta property="og:url" content="https://aidenzou.cn/s">
+  <meta property="og:title" content="飞书天气签名预览">
+  <meta property="og:description" content="稳定的飞书个人签名天气预览入口">
+  <meta property="og:image" content="https://aidenzou.cn/og-image">
+  <meta property="og:image:type" content="image/svg+xml">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:title" content="飞书天气签名预览">
+  <meta name="twitter:description" content="稳定的飞书个人签名天气预览入口">
+  <meta name="twitter:image" content="https://aidenzou.cn/og-image">
+  <link rel="canonical" href="https://aidenzou.cn/s">
+  <title>飞书天气签名预览</title>
+  <style>
+    :root {
+      color-scheme: light;
+    }
+    * {
+      box-sizing: border-box;
+    }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      color: white;
+      background:
+        radial-gradient(circle at top right, rgba(255, 255, 255, 0.18), transparent 24%),
+        linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+    }
+    .shell {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+    }
+    .frame {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      border: 0;
+      background: white;
+    }
+    .badge {
+      position: absolute;
+      top: 24px;
+      left: 24px;
+      z-index: 1;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(9, 15, 47, 0.42);
+      backdrop-filter: blur(14px);
+      font-size: 14px;
+      letter-spacing: 0.02em;
+    }
+    .footer {
+      position: absolute;
+      left: 24px;
+      right: 24px;
+      bottom: 24px;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 16px;
+      padding: 18px 20px;
+      border-radius: 20px;
+      background: rgba(9, 15, 47, 0.45);
+      backdrop-filter: blur(16px);
+    }
+    .summary {
+      display: flex;
+      flex-direction: column;
+      gap: 4px;
+    }
+    .summary strong {
+      font-size: 18px;
+      font-weight: 700;
+    }
+    .summary span {
+      font-size: 14px;
+      opacity: 0.86;
+    }
+    .open-link {
+      color: white;
+      text-decoration: none;
+      padding: 10px 16px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.16);
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .noscript {
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      padding: 24px;
+    }
+    .noscript-card {
+      max-width: 560px;
+      padding: 32px;
+      border-radius: 24px;
+      background: rgba(9, 15, 47, 0.45);
+      backdrop-filter: blur(16px);
+      text-align: center;
+    }
+    .noscript-card a {
+      color: white;
+      font-weight: 700;
+    }
+    @media (max-width: 720px) {
+      .footer {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+      .open-link {
+        width: 100%;
+        text-align: center;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="shell">
+    <div class="badge">Feishu Signature Preview</div>
+    <iframe class="frame" src="/weather" title="Weather signature content"></iframe>
+    <div class="footer">
+      <div class="summary">
+        <strong>飞书天气签名预览入口</strong>
+        <span>新增页面 URL，兼容旧的动态天气页</span>
+      </div>
+      <a class="open-link" href="/weather">打开天气内容页</a>
+    </div>
+    <noscript>
+      <div class="noscript">
+        <div class="noscript-card">
+          <p>此链接用于飞书个人签名预览。</p>
+          <p><a href="/weather">点击打开天气内容页</a></p>
+        </div>
+      </div>
+    </noscript>
+  </div>
+</body>
+</html>

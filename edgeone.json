@@ -6,6 +6,16 @@
     "directory": "functions",
     "main": "index.js"
   },
+  "rewrites": [
+    {
+      "source": "/s",
+      "destination": "/s.html"
+    },
+    {
+      "source": "/content",
+      "destination": "/content.html"
+    }
+  ],
   "edgeFunctionsRoutes": [
     {
       "routePath": "/",
@@ -14,16 +24,6 @@
     },
     {
       "routePath": "/weather",
-      "methods": ["GET"],
-      "runtime": "Edge"
-    },
-    {
-      "routePath": "/content",
-      "methods": ["GET"],
-      "runtime": "Edge"
-    },
-    {
-      "routePath": "/s",
       "methods": ["GET"],
       "runtime": "Edge"
     },

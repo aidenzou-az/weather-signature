@@ -8,8 +8,8 @@ A simple EdgeOne Pages Function that serves a dedicated preview shell for your F
 
 This service fetches weather data from OpenWeatherMap, caches it for 30 minutes, and serves:
 
-- `/s` as a stable signature-preview entry
-- `/content` as the weather content page
+- `/s` as a stable signature-preview page backed by a static rewrite
+- `/content` as a new weather content page URL backed by a static rewrite
 - `/` and `/weather` as backward-compatible direct weather pages
 
 When you set the signature entry URL in Feishu, your signature preview will show:
@@ -158,13 +158,13 @@ Example outputs:
 ├── functions/
 │   ├── index.js          # Root weather page
 │   ├── weather.js        # /weather weather page
-│   ├── content.js        # Dedicated content page
-│   ├── s.js              # Signature preview shell
 │   ├── handler.js        # Shared content-page handler
 │   ├── html.js           # HTML/XML escaping helpers
 │   ├── render.js         # HTML rendering helpers
 │   ├── page-data.js      # Shared weather view model
 │   └── og-image.js       # Dynamic preview image
+├── s.html                # /s static signature-preview page
+├── content.html          # /content static weather content page
 ├── lib/
 │   ├── weather.js        # OpenWeatherMap API client
 │   ├── cache.js          # KV storage with TTL
