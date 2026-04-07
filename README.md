@@ -1,12 +1,18 @@
 # Weather Signature for Feishu
 
-A simple EdgeOne Pages Function that displays current weather in your Feishu (Lark) personal signature.
+A simple EdgeOne Pages Function that serves a dedicated preview shell for your Feishu (Lark) personal signature and displays current weather.
 
 ![Weather Signature Demo](https://via.placeholder.com/600x300/667eea/ffffff?text=Weather+Signature+Demo)
 
 ## Overview
 
-This service fetches weather data from OpenWeatherMap, caches it for 30 minutes, and displays it in an HTML page title. When you set this page as your Feishu signature URL, your signature will automatically show:
+This service fetches weather data from OpenWeatherMap, caches it for 30 minutes, and serves:
+
+- `/s` as a stable signature-preview entry
+- `/content` as the weather content page
+- `/` and `/weather` as backward-compatible direct weather pages
+
+When you set the signature entry URL in Feishu, your signature preview will show:
 
 ```
 北京 22°C 晴朗 - 14:30
@@ -58,7 +64,7 @@ Before you begin, you'll need accounts with:
 
 ### 5. Configure Feishu Signature
 
-1. Copy your deployed EdgeOne Pages URL (e.g., `https://your-project.edgeone.app`)
+1. Copy your deployed EdgeOne Pages signature URL (e.g., `https://your-project.edgeone.app/s`)
 2. Open Feishu → **Settings → Personal Info → Signature**
 3. Paste the URL as your signature
 4. Your signature will now display current weather!
@@ -92,7 +98,7 @@ Any city name supported by OpenWeatherMap works. Examples:
 
 ### Title Format
 
-The HTML `<title>` tag (which Feishu reads) follows this format:
+The HTML `<title>` tag follows this format:
 
 ```
 {CITY} {TEMPERATURE}°C {CONDITION} - {HH:MM}
@@ -150,7 +156,15 @@ Example outputs:
 
 ```
 ├── functions/
-│   └── index.js          # Edge function entry point
+│   ├── index.js          # Root weather page
+│   ├── weather.js        # /weather weather page
+│   ├── content.js        # Dedicated content page
+│   ├── s.js              # Signature preview shell
+│   ├── handler.js        # Shared content-page handler
+│   ├── html.js           # HTML/XML escaping helpers
+│   ├── render.js         # HTML rendering helpers
+│   ├── page-data.js      # Shared weather view model
+│   └── og-image.js       # Dynamic preview image
 ├── lib/
 │   ├── weather.js        # OpenWeatherMap API client
 │   ├── cache.js          # KV storage with TTL

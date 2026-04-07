@@ -16,6 +16,21 @@
       "routePath": "/weather",
       "methods": ["GET"],
       "runtime": "Edge"
+    },
+    {
+      "routePath": "/content",
+      "methods": ["GET"],
+      "runtime": "Edge"
+    },
+    {
+      "routePath": "/s",
+      "methods": ["GET"],
+      "runtime": "Edge"
+    },
+    {
+      "routePath": "/og-image",
+      "methods": ["GET"],
+      "runtime": "Edge"
     }
   ],
   "compatibility_date": "2025-01-01",

@@ -1,12 +1,14 @@
 import { getWeatherPageData } from './page-data.js';
-import { renderContentPage, renderErrorPage } from './render.js';
+import { renderErrorPage, renderShellPage } from './render.js';
 
 export async function onRequestGet({ request, env }) {
   try {
     const data = await getWeatherPageData(env);
     const url = new URL(request.url);
-    const html = renderContentPage(data, {
+    const contentUrl = `${url.origin}/content`;
+    const html = renderShellPage(data, {
       canonicalUrl: url.toString(),
+      contentUrl,
       ogImageUrl: `${url.origin}/og-image`
     });
 

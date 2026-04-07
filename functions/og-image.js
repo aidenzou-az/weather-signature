@@ -1,13 +1,5 @@
 import { getWeatherPageData } from './page-data.js';
-
-function escapeXml(value) {
-  return String(value)
-    .replaceAll('&', '&amp;')
-    .replaceAll('<', '&lt;')
-    .replaceAll('>', '&gt;')
-    .replaceAll('"', '&quot;')
-    .replaceAll("'", '&apos;');
-}
+import { escapeXml } from './html.js';
 
 export async function onRequestGet({ env }) {
   try {
