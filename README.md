@@ -6,7 +6,7 @@ A simple EdgeOne Pages Function that serves a dedicated preview shell for your F
 
 ## Overview
 
-This service fetches weather data from OpenWeatherMap, caches it for 30 minutes, and serves:
+This service fetches weather data from OpenWeatherMap, enriches it with forecast precipitation probability, caches it for 30 minutes, and serves:
 
 - `/s` as a stable signature-preview page backed by a static rewrite
 - `/content` as a new weather content page URL backed by a static rewrite
@@ -15,7 +15,7 @@ This service fetches weather data from OpenWeatherMap, caches it for 30 minutes,
 When you set the signature entry URL in Feishu, your signature preview will show:
 
 ```
-北京 22°C 晴朗 - 14:30
+北京 22°C 晴朗 降水30% - 14:30
 ```
 
 ## Prerequisites
@@ -101,13 +101,20 @@ Any city name supported by OpenWeatherMap works. Examples:
 The HTML `<title>` tag follows this format:
 
 ```
-{CITY} {TEMPERATURE}°C {CONDITION} - {HH:MM}
+{CITY} {TEMPERATURE}°C {CONDITION} 降水{PRECIPITATION}% - {HH:MM}
 ```
 
 Example outputs:
-- `北京 22°C 晴朗 - 14:30`
-- `上海 26°C 多云 - 09:15`
-- `广州 30°C 小雨 - 18:45`
+- `北京 22°C 晴朗 降水30% - 14:30`
+- `上海 26°C 多云 降水10% - 09:15`
+- `广州 30°C 小雨 降水65% - 18:45`
+- If forecast precipitation is unavailable, the title falls back to `{CITY} {TEMPERATURE}°C {CONDITION} - {HH:MM}`
+
+### Precipitation Probability Source
+
+- Current temperature and condition still come from OpenWeatherMap current weather data.
+- Precipitation probability is derived from the nearest available item in OpenWeatherMap's 5 day / 3 hour forecast response (`list.pop`).
+- If the forecast request fails or the field is unavailable, the page still renders and shows `暂无数据`.
 
 ### Weather Conditions (Chinese)
 

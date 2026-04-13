@@ -31,6 +31,7 @@ export function renderContentPage(data, { canonicalUrl, ogImageUrl }) {
   const safeCity = escapeHtml(data.city);
   const safeTemp = escapeHtml(data.temp);
   const safeCondition = escapeHtml(data.condition);
+  const safePrecipitationText = escapeHtml(data.precipitationText);
   const safeTimeStr = escapeHtml(data.timeStr);
   const safeTitle = escapeHtml(data.title);
 
@@ -62,6 +63,7 @@ ${renderMeta({
     .city { font-size: 24px; opacity: 0.9; margin-bottom: 10px; }
     .temp { font-size: 72px; font-weight: 300; line-height: 1; }
     .condition { font-size: 28px; margin: 20px 0; }
+    .precipitation { font-size: 22px; opacity: 0.92; }
     .time { font-size: 18px; opacity: 0.8; margin-top: 20px; }
     .stale-warning {
       background: #ff6b6b;
@@ -84,6 +86,7 @@ ${renderMeta({
     <div class="city">${safeCity}</div>
     <div class="temp">${safeTemp}°C</div>
     <div class="condition">${safeCondition}</div>
+    <div class="precipitation">降水概率: ${safePrecipitationText}</div>
     <div class="time">更新时间: ${safeTimeStr}</div>
     ${data.isStale ? '<div class="stale-warning">⚠️ 天气数据暂时无法更新，显示为缓存数据</div>' : ''}
   </div>

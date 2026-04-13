@@ -1,6 +1,14 @@
 import { getCachedWeather } from '../lib/cache.js';
 import { getWeatherDescription } from '../lib/i18n.js';
 
+function normalizePrecipitationProbability(value) {
+  if (typeof value !== 'number' || !Number.isFinite(value)) {
+    return null;
+  }
+
+  return Math.max(0, Math.min(100, Math.round(value)));
+}
+
 export async function getWeatherPageData(env) {
   const city = env?.CITY || 'Beijing';
   const apiKey = env?.OPENWEATHER_API_KEY;
@@ -21,6 +29,10 @@ export async function getWeatherPageData(env) {
   const temp = Math.round(weather.main.temp);
   const conditionCode = weather.weather[0].id;
   const condition = getWeatherDescription(conditionCode);
+  const precipitationProbability = normalizePrecipitationProbability(weather.precipitationProbability);
+  const precipitationText = precipitationProbability === null
+    ? '暂无数据'
+    : `${precipitationProbability}%`;
 
   const now = new Date();
   const timeStr = now.toLocaleTimeString('zh-CN', {
@@ -29,12 +41,17 @@ export async function getWeatherPageData(env) {
     hour12: false
   });
 
-  const title = `${city} ${temp}°C ${condition} - ${timeStr}`;
+  const precipitationTitlePart = precipitationProbability === null
+    ? ''
+    : ` 降水${precipitationProbability}%`;
+  const title = `${city} ${temp}°C ${condition}${precipitationTitlePart} - ${timeStr}`;
 
   return {
     city,
     temp,
     condition,
+    precipitationProbability,
+    precipitationText,
     timeStr,
     title,
     isStale
