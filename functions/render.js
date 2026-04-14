@@ -1,5 +1,172 @@
 import { escapeHtml } from './html.js';
 
+function clamp(value, min, max) {
+  return Math.min(Math.max(value, min), max);
+}
+
+function hexToRgba(hex, alpha) {
+  const normalized = hex.replace('#', '');
+  const value = normalized.length === 3
+    ? normalized.split('').map((char) => char + char).join('')
+    : normalized;
+
+  const red = parseInt(value.slice(0, 2), 16);
+  const green = parseInt(value.slice(2, 4), 16);
+  const blue = parseInt(value.slice(4, 6), 16);
+
+  return `rgba(${red}, ${green}, ${blue}, ${alpha})`;
+}
+
+function getTemperatureTheme(temp) {
+  if (temp <= 5) {
+    return {
+      skyTop: '#0f1c3f',
+      skyBottom: '#3c6df0',
+      glow: '#9fd3ff',
+      surface: 'rgba(7, 18, 44, 0.72)',
+      border: 'rgba(173, 222, 255, 0.28)',
+      accent: '#bce7ff',
+      thermalLabel: '冷空气增强'
+    };
+  }
+
+  if (temp <= 20) {
+    return {
+      skyTop: '#123b56',
+      skyBottom: '#3f8db5',
+      glow: '#ffe39a',
+      surface: 'rgba(10, 31, 47, 0.68)',
+      border: 'rgba(181, 229, 255, 0.24)',
+      accent: '#daf4ff',
+      thermalLabel: '舒适流动'
+    };
+  }
+
+  if (temp <= 28) {
+    return {
+      skyTop: '#21435f',
+      skyBottom: '#ef8e52',
+      glow: '#ffd26e',
+      surface: 'rgba(34, 24, 39, 0.62)',
+      border: 'rgba(255, 223, 159, 0.24)',
+      accent: '#fff1bf',
+      thermalLabel: '暖光扩散'
+    };
+  }
+
+  return {
+    skyTop: '#341a37',
+    skyBottom: '#ff7b54',
+    glow: '#ffb35c',
+    surface: 'rgba(47, 17, 28, 0.64)',
+    border: 'rgba(255, 193, 128, 0.28)',
+    accent: '#ffe0b5',
+    thermalLabel: '热浪脉冲'
+  };
+}
+
+function getCityLandmark(city) {
+  const normalized = city.trim().toLowerCase();
+
+  if (normalized === 'beijing' || normalized === '北京') {
+    return {
+      label: '天坛',
+      caption: '北京地标轮廓',
+      svg: `
+        <svg viewBox="0 0 640 200" aria-hidden="true" focusable="false">
+          <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M110 168H530" opacity="0.4" />
+            <path d="M208 164H432" />
+            <path d="M232 146H408" opacity="0.9" />
+            <path d="M260 128H380" opacity="0.85" />
+            <path d="M284 110H356" opacity="0.82" />
+            <path d="M320 56V98" opacity="0.92" />
+            <path d="M260 110C274 90 296 78 320 78C344 78 366 90 380 110" />
+            <path d="M236 128C252 104 283 90 320 90C357 90 388 104 404 128" />
+            <path d="M208 146C228 118 268 102 320 102C372 102 412 118 432 146" />
+            <path d="M300 50H340" opacity="0.75" />
+            <path d="M188 178H452" opacity="0.3" />
+            <path d="M120 178C148 164 178 158 208 164" opacity="0.28" />
+            <path d="M520 178C492 164 462 158 432 164" opacity="0.28" />
+          </g>
+        </svg>
+      `
+    };
+  }
+
+  return {
+    label: '城市轮廓',
+    caption: '当前城市视觉标识',
+    svg: `
+      <svg viewBox="0 0 640 200" aria-hidden="true" focusable="false">
+        <g fill="none" stroke="currentColor" stroke-width="4" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M96 168H544" opacity="0.4" />
+          <path d="M156 168V118L214 92V168" />
+          <path d="M232 168V72H284V168" />
+          <path d="M304 168V40H338V168" />
+          <path d="M356 168V96H416V168" />
+          <path d="M438 168V124L494 102V168" />
+        </g>
+      </svg>
+    `
+  };
+}
+
+function getVisualState(data) {
+  const temp = Number(data.temp);
+  const precipitationProbability = typeof data.precipitationProbability === 'number'
+    ? clamp(data.precipitationProbability, 0, 100)
+    : 0;
+  const rainLevel = precipitationProbability / 100;
+  const theme = getTemperatureTheme(temp);
+  const glowOpacity = clamp(0.78 - (rainLevel * 0.45) + (temp > 26 ? 0.08 : 0), 0.24, 0.88);
+  const rainOpacity = clamp(0.12 + (rainLevel * 0.68), 0.12, 0.86);
+  const rainLength = clamp(26 + Math.round(rainLevel * 30), 26, 56);
+  const driftDuration = clamp(16 - ((temp + 8) * 0.18), 8, 18);
+  const pulseDuration = clamp(8 - (temp * 0.08), 4.6, 8);
+  const cloudOpacity = clamp(0.18 + (rainLevel * 0.52), 0.18, 0.72);
+  const hazeOpacity = clamp((temp > 28 ? 0.22 : 0.08) + (rainLevel * 0.16), 0.08, 0.34);
+
+  return {
+    ...theme,
+    precipitationProbability,
+    landmark: getCityLandmark(data.city),
+    rainLabel: precipitationProbability >= 60 ? '雨幕增强'
+      : precipitationProbability >= 25 ? '湿润波动'
+      : '低降水扰动',
+    style: [
+      `--sky-top:${theme.skyTop}`,
+      `--sky-bottom:${theme.skyBottom}`,
+      `--glow:${theme.glow}`,
+      `--surface:${theme.surface}`,
+      `--surface-border:${theme.border}`,
+      `--accent:${theme.accent}`,
+      `--glow-soft:${hexToRgba(theme.glow, 0.58)}`,
+      `--glow-strong:${hexToRgba(theme.glow, 0.82)}`,
+      `--glow-panel:${hexToRgba(theme.glow, 0.28)}`,
+      `--glow-halo:${hexToRgba(theme.glow, 0.36)}`,
+      `--accent-shadow:${hexToRgba(theme.accent, 0.65)}`,
+      `--glow-opacity:${glowOpacity}`,
+      `--rain-opacity:${rainOpacity}`,
+      `--rain-length:${rainLength}px`,
+      `--cloud-opacity:${cloudOpacity}`,
+      `--haze-opacity:${hazeOpacity}`,
+      `--drift-duration:${driftDuration}s`,
+      `--pulse-duration:${pulseDuration}s`
+    ].join(';')
+  };
+}
+
+function renderRainLines() {
+  return Array.from({ length: 9 }, (_, index) => {
+    const left = 8 + (index * 10.5);
+    const delay = (index * 0.55).toFixed(2);
+    const duration = (1.8 + ((index % 3) * 0.35)).toFixed(2);
+
+    return `<span class="rain-line" style="--line-left:${left}%;--line-delay:${delay}s;--line-duration:${duration}s;"></span>`;
+  }).join('');
+}
+
 function renderMeta({ title, description, canonicalUrl, ogImageUrl }) {
   const safeTitle = escapeHtml(title);
   const safeDescription = escapeHtml(description);
@@ -29,11 +196,16 @@ function renderMeta({ title, description, canonicalUrl, ogImageUrl }) {
 export function renderContentPage(data, { canonicalUrl, ogImageUrl }) {
   const title = data.title;
   const safeCity = escapeHtml(data.city);
-  const safeTemp = escapeHtml(data.temp);
   const safeCondition = escapeHtml(data.condition);
   const safePrecipitationText = escapeHtml(data.precipitationText);
   const safeTimeStr = escapeHtml(data.timeStr);
   const safeTitle = escapeHtml(data.title);
+  const safeTempText = escapeHtml(`${data.temp}°C`);
+  const visual = getVisualState(data);
+  const safeLandmarkLabel = escapeHtml(visual.landmark.label);
+  const safeLandmarkCaption = escapeHtml(visual.landmark.caption);
+  const safeThermalLabel = escapeHtml(visual.thermalLabel);
+  const safeRainLabel = escapeHtml(visual.rainLabel);
 
   return `<!DOCTYPE html>
 <html lang="zh-CN" prefix="og: https://ogp.me/ns#">
@@ -45,56 +217,495 @@ ${renderMeta({
     ogImageUrl
   })}
   <style>
+    :root {
+      color-scheme: dark;
+    }
+    * {
+      box-sizing: border-box;
+    }
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      max-width: 600px;
-      margin: 50px auto;
-      padding: 20px;
-      text-align: center;
-      color: #333;
+      margin: 0;
+      min-height: 100vh;
+      font-family: "SF Pro Display", "Segoe UI", sans-serif;
+      color: #f7fbff;
+      background:
+        radial-gradient(circle at 18% 18%, var(--glow-soft) 0%, transparent 34%),
+        radial-gradient(circle at 82% 16%, rgba(255, 255, 255, 0.14), transparent 20%),
+        linear-gradient(160deg, var(--sky-top) 0%, var(--sky-bottom) 100%);
+      overflow-x: hidden;
+    }
+    .weather-stage {
+      position: relative;
+      min-height: 100vh;
+      overflow: hidden;
+      isolation: isolate;
+    }
+    .weather-stage::before,
+    .weather-stage::after {
+      content: "";
+      position: absolute;
+      inset: auto auto 14% -8%;
+      width: 30rem;
+      height: 30rem;
+      border-radius: 50%;
+      background: var(--glow-strong);
+      opacity: var(--glow-opacity);
+      filter: blur(18px);
+      animation: haloPulse var(--pulse-duration) ease-in-out infinite alternate;
+      z-index: 0;
+    }
+    .weather-stage::after {
+      inset: 10% -8% auto auto;
+      width: 18rem;
+      height: 18rem;
+      opacity: calc(var(--glow-opacity) * 0.55);
+      animation-duration: calc(var(--pulse-duration) * 1.35);
+    }
+    .weather-shell {
+      position: relative;
+      z-index: 2;
+      width: min(1080px, calc(100vw - 32px));
+      margin: 0 auto;
+      min-height: 100vh;
+      display: grid;
+      align-items: center;
+      padding: 32px 0;
     }
     .weather-card {
-      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-      border-radius: 20px;
-      padding: 40px;
-      color: white;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+      position: relative;
+      overflow: hidden;
+      border-radius: 32px;
+      background: linear-gradient(180deg, var(--surface) 0%, rgba(5, 11, 25, 0.74) 100%);
+      border: 1px solid var(--surface-border);
+      box-shadow:
+        0 26px 80px rgba(2, 6, 18, 0.42),
+        inset 0 1px 0 rgba(255, 255, 255, 0.08);
+      padding: 32px;
+      backdrop-filter: blur(18px);
     }
-    .city { font-size: 24px; opacity: 0.9; margin-bottom: 10px; }
-    .temp { font-size: 72px; font-weight: 300; line-height: 1; }
-    .condition { font-size: 28px; margin: 20px 0; }
-    .precipitation { font-size: 22px; opacity: 0.92; }
-    .time { font-size: 18px; opacity: 0.8; margin-top: 20px; }
+    .weather-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background:
+        linear-gradient(140deg, rgba(255, 255, 255, 0.08), transparent 38%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 32%);
+      pointer-events: none;
+    }
+    .weather-card::after {
+      content: "";
+      position: absolute;
+      inset: auto -10% -22% auto;
+      width: 22rem;
+      height: 22rem;
+      border-radius: 50%;
+      background: var(--glow-panel);
+      opacity: 0.55;
+      filter: blur(44px);
+      animation: drift var(--drift-duration) ease-in-out infinite alternate;
+      pointer-events: none;
+    }
+    .status-orbit {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+    }
+    .status-orbit span {
+      position: absolute;
+      display: block;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      opacity: var(--cloud-opacity);
+      filter: blur(2px);
+      animation: drift calc(var(--drift-duration) * 1.1) ease-in-out infinite alternate;
+    }
+    .status-orbit span:nth-child(1) {
+      top: 14%;
+      left: 8%;
+      width: 180px;
+      height: 42px;
+    }
+    .status-orbit span:nth-child(2) {
+      top: 20%;
+      right: 12%;
+      width: 132px;
+      height: 34px;
+      animation-duration: calc(var(--drift-duration) * 0.92);
+    }
+    .status-orbit span:nth-child(3) {
+      bottom: 34%;
+      right: 18%;
+      width: 96px;
+      height: 24px;
+      opacity: calc(var(--cloud-opacity) * 0.78);
+      animation-duration: calc(var(--drift-duration) * 1.25);
+    }
+    .rain-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      mask-image: linear-gradient(180deg, transparent 0%, black 18%, black 88%, transparent 100%);
+    }
+    .rain-line {
+      position: absolute;
+      top: -18%;
+      left: var(--line-left);
+      width: 2px;
+      height: var(--rain-length);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(197, 231, 255, 0.95));
+      opacity: var(--rain-opacity);
+      transform: rotate(12deg);
+      animation: rainFall var(--line-duration) linear infinite;
+      animation-delay: var(--line-delay);
+    }
+    .weather-top {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      gap: 20px;
+      align-items: flex-start;
+      flex-wrap: wrap;
+    }
+    .eyebrow,
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 10px 14px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.08);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      letter-spacing: 0.03em;
+      font-size: 13px;
+      color: rgba(246, 251, 255, 0.88);
+    }
+    .eyebrow::before,
+    .status-chip::before {
+      content: "";
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 18px var(--accent-shadow);
+    }
+    .hero-grid {
+      position: relative;
+      z-index: 1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
+      gap: 28px;
+      margin-top: 28px;
+      align-items: end;
+    }
+    .hero-copy {
+      display: flex;
+      flex-direction: column;
+      gap: 18px;
+    }
+    .city {
+      font-size: clamp(1.2rem, 1rem + 0.8vw, 1.75rem);
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      color: rgba(247, 251, 255, 0.86);
+    }
+    .temp {
+      display: flex;
+      align-items: baseline;
+      gap: 18px;
+      flex-wrap: wrap;
+    }
+    .temp strong {
+      font-size: clamp(4.3rem, 12vw, 7.5rem);
+      line-height: 0.95;
+      font-weight: 650;
+      letter-spacing: -0.06em;
+    }
+    .temp span {
+      font-size: clamp(1rem, 0.92rem + 0.5vw, 1.4rem);
+      color: var(--accent);
+    }
+    .summary {
+      max-width: 34rem;
+      margin: 0;
+      font-size: clamp(1rem, 0.94rem + 0.3vw, 1.12rem);
+      line-height: 1.7;
+      color: rgba(241, 248, 255, 0.84);
+    }
+    .metric-row {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 14px;
+      margin-top: 8px;
+    }
+    .metric-card {
+      padding: 16px 18px;
+      border-radius: 22px;
+      background: rgba(255, 255, 255, 0.06);
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .metric-label {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(232, 244, 255, 0.66);
+    }
+    .metric-value {
+      display: block;
+      margin-top: 8px;
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .landmark-panel {
+      position: relative;
+      padding: 24px 24px 18px;
+      border-radius: 28px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(9, 16, 28, 0.22));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      min-height: 320px;
+      display: flex;
+      flex-direction: column;
+      justify-content: flex-end;
+      overflow: hidden;
+    }
+    .landmark-panel::before {
+      content: "";
+      position: absolute;
+      inset: 14% 12% auto auto;
+      width: 8rem;
+      height: 8rem;
+      border-radius: 50%;
+      background: var(--glow-halo);
+      opacity: calc(var(--glow-opacity) * 0.76);
+      filter: blur(10px);
+      animation: haloPulse calc(var(--pulse-duration) * 1.2) ease-in-out infinite alternate;
+    }
+    .landmark-caption {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 18px;
+      color: rgba(247, 251, 255, 0.84);
+      font-size: 0.95rem;
+    }
+    .landmark-caption strong {
+      font-size: 1.15rem;
+      color: #fff;
+    }
+    .landmark-art {
+      position: relative;
+      z-index: 1;
+      color: rgba(245, 251, 255, 0.92);
+      transform: translateY(8px);
+      animation: skylineFloat calc(var(--drift-duration) * 0.92) ease-in-out infinite alternate;
+    }
+    .landmark-art svg {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .landmark-base {
+      position: absolute;
+      left: -4%;
+      right: -4%;
+      bottom: -10%;
+      height: 46%;
+      background:
+        linear-gradient(180deg, rgba(2, 8, 18, 0), rgba(3, 10, 22, 0.7) 38%, rgba(2, 8, 18, 0.96) 100%),
+        radial-gradient(circle at 50% 0%, rgba(255, 255, 255, var(--haze-opacity)), transparent 52%);
+    }
+    .weather-footer {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      gap: 16px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 24px;
+      padding-top: 18px;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
+      color: rgba(236, 245, 255, 0.74);
+      font-size: 0.96rem;
+    }
+    .weather-footer strong {
+      color: #fff;
+    }
     .stale-warning {
-      background: #ff6b6b;
-      color: white;
-      padding: 10px;
-      border-radius: 8px;
-      margin-top: 20px;
-      font-size: 14px;
+      padding: 12px 14px;
+      border-radius: 16px;
+      background: rgba(255, 108, 100, 0.16);
+      border: 1px solid rgba(255, 136, 136, 0.28);
+      color: #ffd7d7;
     }
-    .info { margin-top: 30px; color: #666; font-size: 14px; }
+    .info {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      flex-wrap: wrap;
+      margin-top: 18px;
+      color: rgba(228, 239, 249, 0.72);
+      font-size: 0.92rem;
+    }
     .entry-link {
-      color: #667eea;
+      color: var(--accent);
       text-decoration: none;
       font-weight: 600;
     }
+    @keyframes rainFall {
+      0% {
+        transform: translate3d(0, -30%, 0) rotate(12deg);
+        opacity: 0;
+      }
+      18% {
+        opacity: var(--rain-opacity);
+      }
+      100% {
+        transform: translate3d(-28px, 125vh, 0) rotate(12deg);
+        opacity: 0;
+      }
+    }
+    @keyframes drift {
+      from {
+        transform: translate3d(-8px, 0, 0);
+      }
+      to {
+        transform: translate3d(18px, -10px, 0);
+      }
+    }
+    @keyframes haloPulse {
+      from {
+        transform: scale(0.94);
+      }
+      to {
+        transform: scale(1.08);
+      }
+    }
+    @keyframes skylineFloat {
+      from {
+        transform: translateY(10px);
+      }
+      to {
+        transform: translateY(-4px);
+      }
+    }
+    @media (max-width: 880px) {
+      .weather-shell {
+        width: min(100vw - 20px, 760px);
+        padding: 18px 0;
+      }
+      .weather-card {
+        padding: 24px;
+        border-radius: 28px;
+      }
+      .hero-grid {
+        grid-template-columns: 1fr;
+      }
+      .landmark-panel {
+        min-height: 240px;
+      }
+    }
+    @media (max-width: 560px) {
+      body {
+        background-attachment: fixed;
+      }
+      .weather-shell {
+        width: calc(100vw - 12px);
+      }
+      .weather-card {
+        padding: 18px;
+        border-radius: 24px;
+      }
+      .metric-row {
+        grid-template-columns: 1fr;
+      }
+      .weather-footer,
+      .info,
+      .weather-top {
+        flex-direction: column;
+        align-items: flex-start;
+      }
+    }
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
   </style>
 </head>
-<body>
-  <div class="weather-card">
-    <div class="city">${safeCity}</div>
-    <div class="temp">${safeTemp}°C</div>
-    <div class="condition">${safeCondition}</div>
-    <div class="precipitation">降水概率: ${safePrecipitationText}</div>
-    <div class="time">更新时间: ${safeTimeStr}</div>
-    ${data.isStale ? '<div class="stale-warning">⚠️ 天气数据暂时无法更新，显示为缓存数据</div>' : ''}
-  </div>
-  <div class="info">
-    <p>此页面用于飞书个人签名显示天气</p>
-    <p>Title: ${safeTitle}</p>
-    <p>推荐签名入口: <a class="entry-link" href="/s">/s</a></p>
-  </div>
+<body style="${visual.style}">
+  <main class="weather-stage">
+    <section class="weather-shell">
+      <article class="weather-card">
+        <div class="status-orbit">
+          <span></span>
+          <span></span>
+          <span></span>
+        </div>
+        <div class="rain-layer">
+          ${renderRainLines()}
+        </div>
+        <div class="weather-top">
+          <div class="eyebrow">城市天气签名</div>
+          <div class="status-chip">${safeLandmarkLabel} · ${safeRainLabel}</div>
+        </div>
+        <div class="hero-grid">
+          <div class="hero-copy">
+            <div class="city">${safeCity}</div>
+            <div class="temp">
+              <strong>${safeTempText}</strong>
+              <span>${safeThermalLabel}</span>
+            </div>
+            <p class="summary">
+              当前页面会根据气温与降水概率实时改变光感、云层与雨幕节奏，并用 ${safeLandmarkLabel} 的轮廓提示这座城市的在场感。
+            </p>
+            <div class="metric-row">
+              <div class="metric-card">
+                <span class="metric-label">Weather</span>
+                <span class="metric-value">${safeCondition}</span>
+              </div>
+              <div class="metric-card">
+                <span class="metric-label">Precipitation</span>
+                <span class="metric-value">${safePrecipitationText}</span>
+              </div>
+            </div>
+          </div>
+          <aside class="landmark-panel">
+            <div class="landmark-caption">
+              <div>
+                <strong>${safeLandmarkLabel}</strong>
+                <div>${safeLandmarkCaption}</div>
+              </div>
+              <span>温度与雨势联动</span>
+            </div>
+            <div class="landmark-art">${visual.landmark.svg}</div>
+            <div class="landmark-base"></div>
+          </aside>
+        </div>
+        <div class="weather-footer">
+          <div><strong>更新时间</strong> ${safeTimeStr}</div>
+          <div><strong>签名标题</strong> ${safeTitle}</div>
+          ${data.isStale ? '<div class="stale-warning">天气数据暂时无法更新，当前展示为缓存结果</div>' : ''}
+        </div>
+        <div class="info">
+          <span>此页面用于飞书个人签名天气展示，支持在 <code>/s</code> 与 <code>/content</code> 中直接复用。</span>
+          <span>推荐签名入口: <a class="entry-link" href="/s">/s</a></span>
+        </div>
+      </article>
+    </section>
+  </main>
 </body>
 </html>`;
 }
