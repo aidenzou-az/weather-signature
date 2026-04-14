@@ -658,7 +658,6 @@ ${renderMeta({
           ${renderRainLines()}
         </div>
         <div class="weather-top">
-          <div class="eyebrow">城市天气签名</div>
           <div class="status-chip">${safeLandmarkLabel} · ${safeRainLabel}</div>
         </div>
         <div class="hero-grid">
@@ -668,9 +667,6 @@ ${renderMeta({
               <strong>${safeTempText}</strong>
               <span>${safeThermalLabel}</span>
             </div>
-            <p class="summary">
-              当前页面会根据气温与降水概率实时改变光感、云层与雨幕节奏，并用 ${safeLandmarkLabel} 的轮廓提示这座城市的在场感。
-            </p>
             <div class="metric-row">
               <div class="metric-card">
                 <span class="metric-label">Weather</span>
@@ -688,7 +684,6 @@ ${renderMeta({
                 <strong>${safeLandmarkLabel}</strong>
                 <div>${safeLandmarkCaption}</div>
               </div>
-              <span>温度与雨势联动</span>
             </div>
             <div class="landmark-art">${visual.landmark.svg}</div>
             <div class="landmark-base"></div>
@@ -696,12 +691,7 @@ ${renderMeta({
         </div>
         <div class="weather-footer">
           <div><strong>更新时间</strong> ${safeTimeStr}</div>
-          <div><strong>签名标题</strong> ${safeTitle}</div>
           ${data.isStale ? '<div class="stale-warning">天气数据暂时无法更新，当前展示为缓存结果</div>' : ''}
-        </div>
-        <div class="info">
-          <span>此页面用于飞书个人签名天气展示，支持在 <code>/s</code> 与 <code>/content</code> 中直接复用。</span>
-          <span>推荐签名入口: <a class="entry-link" href="/s">/s</a></span>
         </div>
       </article>
     </section>
