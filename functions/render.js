@@ -112,28 +112,124 @@ function getCityLandmark(city) {
   };
 }
 
+function getWeatherFamily(conditionCode) {
+  if (!Number.isFinite(conditionCode)) {
+    return 'unknown';
+  }
+
+  if (conditionCode >= 200 && conditionCode < 300) {
+    return 'thunder';
+  }
+  if ((conditionCode >= 300 && conditionCode < 400) || (conditionCode >= 500 && conditionCode < 600)) {
+    return 'rain';
+  }
+  if (conditionCode >= 600 && conditionCode < 700) {
+    return 'snow';
+  }
+  if (conditionCode >= 700 && conditionCode < 800) {
+    return 'atmosphere';
+  }
+  if (conditionCode === 800) {
+    return 'clear';
+  }
+  if (conditionCode > 800 && conditionCode < 900) {
+    return 'clouds';
+  }
+
+  return 'unknown';
+}
+
 function getVisualState(data) {
   const temp = Number(data.temp);
+  const conditionCode = Number(data.conditionCode);
   const precipitationProbability = typeof data.precipitationProbability === 'number'
     ? clamp(data.precipitationProbability, 0, 100)
     : 0;
   const rainLevel = precipitationProbability / 100;
+  const weatherFamily = getWeatherFamily(conditionCode);
   const theme = getTemperatureTheme(temp);
-  const glowOpacity = clamp(0.78 - (rainLevel * 0.45) + (temp > 26 ? 0.08 : 0), 0.24, 0.88);
-  const rainOpacity = clamp(0.12 + (rainLevel * 0.68), 0.12, 0.86);
-  const rainLength = clamp(26 + Math.round(rainLevel * 30), 26, 56);
-  const driftDuration = clamp(16 - ((temp + 8) * 0.18), 8, 18);
-  const pulseDuration = clamp(8 - (temp * 0.08), 4.6, 8);
-  const cloudOpacity = clamp(0.18 + (rainLevel * 0.52), 0.18, 0.72);
-  const hazeOpacity = clamp((temp > 28 ? 0.22 : 0.08) + (rainLevel * 0.16), 0.08, 0.34);
+  const isWetFamily = weatherFamily === 'rain' || weatherFamily === 'thunder';
+  const glowOpacity = clamp(
+    0.78
+      - (weatherFamily === 'clouds' ? 0.18 : 0)
+      - (weatherFamily === 'rain' ? 0.24 : 0)
+      - (weatherFamily === 'thunder' ? 0.32 : 0)
+      + (temp > 26 ? 0.08 : 0),
+    0.18,
+    0.88
+  );
+  const rainPresence = isWetFamily
+    ? clamp(0.42 + (rainLevel * 0.48), 0.42, 0.92)
+    : weatherFamily === 'clouds'
+      ? clamp(rainLevel * 0.22, 0, 0.22)
+      : weatherFamily === 'atmosphere'
+        ? clamp(rainLevel * 0.12, 0, 0.12)
+        : 0;
+  const rainOpacity = rainPresence;
+  const rainLength = isWetFamily
+    ? clamp(34 + Math.round(rainLevel * 26), 34, 60)
+    : weatherFamily === 'clouds'
+      ? clamp(18 + Math.round(rainLevel * 10), 18, 28)
+      : 18;
+  const driftDuration = clamp(
+    16
+      - ((temp + 8) * 0.18)
+      - (weatherFamily === 'thunder' ? 2.4 : 0)
+      - (weatherFamily === 'rain' ? 1.2 : 0),
+    7,
+    18
+  );
+  const pulseDuration = clamp(
+    8
+      - (temp * 0.08)
+      - (weatherFamily === 'thunder' ? 1 : 0)
+      - (weatherFamily === 'rain' ? 0.4 : 0),
+    4.2,
+    8
+  );
+  const cloudOpacity = clamp(
+    (weatherFamily === 'clear' ? 0.1 : 0)
+      + (weatherFamily === 'clouds' ? 0.34 : 0)
+      + (weatherFamily === 'rain' ? 0.28 : 0)
+      + (weatherFamily === 'thunder' ? 0.32 : 0)
+      + (weatherFamily === 'snow' ? 0.22 : 0)
+      + (weatherFamily === 'atmosphere' ? 0.26 : 0)
+      + (weatherFamily === 'clouds' ? rainLevel * 0.18 : 0),
+    0.1,
+    0.78
+  );
+  const hazeOpacity = clamp(
+    (temp > 28 ? 0.22 : 0.08)
+      + (weatherFamily === 'clouds' ? 0.04 : 0)
+      + (weatherFamily === 'rain' ? 0.08 : 0)
+      + (weatherFamily === 'thunder' ? 0.12 : 0)
+      + (weatherFamily === 'atmosphere' ? 0.18 : 0)
+      + (weatherFamily === 'snow' ? 0.08 : 0),
+    0.08,
+    0.36
+  );
+  const rainLabel = weatherFamily === 'thunder'
+    ? '雷暴逼近'
+    : weatherFamily === 'rain'
+      ? (precipitationProbability >= 60 ? '降雨进行中' : '湿润降雨')
+      : weatherFamily === 'clouds'
+        ? (precipitationProbability >= 60 ? '云层蓄雨' : '云层堆积')
+        : weatherFamily === 'snow'
+          ? '雪意渐浓'
+          : weatherFamily === 'clear'
+            ? (precipitationProbability >= 40 ? '晴空转潮' : '晴空舒展')
+            : weatherFamily === 'atmosphere'
+              ? '雾气弥散'
+              : '天气流动';
+  const rainLayerVisible = rainOpacity > 0.02;
 
   return {
     ...theme,
+    weatherFamily,
     precipitationProbability,
     landmark: getCityLandmark(data.city),
-    rainLabel: precipitationProbability >= 60 ? '雨幕增强'
-      : precipitationProbability >= 25 ? '湿润波动'
-      : '低降水扰动',
+    rainLabel,
+    rainLayerVisible,
     style: [
       `--sky-top:${theme.skyTop}`,
       `--sky-bottom:${theme.skyBottom}`,
@@ -654,9 +750,9 @@ ${renderMeta({
           <span></span>
           <span></span>
         </div>
-        <div class="rain-layer">
+        ${visual.rainLayerVisible ? `<div class="rain-layer">
           ${renderRainLines()}
-        </div>
+        </div>` : ''}
         <div class="weather-top">
           <div class="status-chip">${safeLandmarkLabel} · ${safeRainLabel}</div>
         </div>

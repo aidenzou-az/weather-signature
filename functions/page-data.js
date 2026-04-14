@@ -50,6 +50,7 @@ export async function getWeatherPageData(env) {
     city,
     temp,
     condition,
+    conditionCode,
     precipitationProbability,
     precipitationText,
     timeStr,
