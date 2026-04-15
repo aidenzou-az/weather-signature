@@ -332,15 +332,15 @@ ${renderMeta({
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: minmax(0, 1.22fr) minmax(240px, 0.78fr);
-      gap: 24px;
-      align-items: start;
+      grid-template-columns: minmax(0, 1.08fr) minmax(320px, 0.92fr);
+      gap: 20px;
+      align-items: stretch;
     }
     .hero-copy {
       display: flex;
       flex-direction: column;
-      gap: 16px;
-      padding-top: 4px;
+      gap: 14px;
+      padding-top: 6px;
     }
     .hero-primary {
       display: flex;
@@ -419,16 +419,16 @@ ${renderMeta({
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 0;
-      margin-top: 12px;
+      margin-top: 10px;
       border-radius: 24px;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.042), rgba(255, 255, 255, 0.018));
       border: 1px solid rgba(255, 255, 255, 0.05);
       overflow: hidden;
     }
     .insight-card {
-      margin-top: 14px;
-      padding-top: 14px;
-      max-width: 34rem;
+      margin-top: 12px;
+      padding-top: 12px;
+      max-width: 32rem;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
     .insight-label {
@@ -475,27 +475,30 @@ ${renderMeta({
     }
     .landmark-panel {
       position: relative;
-      padding: 12px 12px 8px;
-      border-radius: 28px;
+      padding: 18px 18px 16px;
+      border-radius: 32px;
       background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), var(--city-wash-soft));
       border: 1px solid var(--city-outline);
-      min-height: 258px;
+      min-height: 398px;
       display: flex;
       flex-direction: column;
-      justify-content: flex-end;
+      justify-content: space-between;
       overflow: hidden;
-      margin-top: 44px;
+      margin-top: 6px;
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.06),
+        0 18px 42px rgba(3, 7, 20, 0.18);
     }
     .landmark-panel::before {
       content: "";
       position: absolute;
-      inset: 14% 12% auto auto;
-      width: 8rem;
-      height: 8rem;
+      inset: 10% 8% auto auto;
+      width: 11rem;
+      height: 11rem;
       border-radius: 50%;
       background: var(--city-halo);
-      opacity: calc(var(--glow-opacity) * 0.76);
-      filter: blur(10px);
+      opacity: calc(var(--glow-opacity) * 0.88);
+      filter: blur(14px);
       animation: haloPulse calc(var(--pulse-duration) * 1.2) ease-in-out infinite alternate;
     }
     .landmark-caption {
@@ -505,22 +508,23 @@ ${renderMeta({
       justify-content: flex-start;
       gap: 10px;
       align-items: center;
-      margin-bottom: 10px;
-      color: rgba(231, 242, 255, 0.58);
-      font-size: 0.8rem;
+      margin-bottom: 0;
+      color: rgba(231, 242, 255, 0.64);
+      font-size: 0.84rem;
     }
     .landmark-caption strong {
-      font-size: 0.92rem;
-      color: rgba(255, 255, 255, 0.84);
+      font-size: 1rem;
+      color: rgba(255, 255, 255, 0.9);
     }
     .landmark-art {
       position: relative;
       z-index: 1;
       color: rgba(245, 251, 255, 0.92);
       opacity: var(--landmark-opacity);
-      transform: translateY(8px);
+      transform: translateY(0);
       animation: skylineFloat calc(var(--drift-duration) * 0.92) ease-in-out infinite alternate;
-      max-width: 88%;
+      max-width: 100%;
+      width: 100%;
       margin-left: auto;
       margin-right: auto;
     }
@@ -533,8 +537,8 @@ ${renderMeta({
       position: absolute;
       left: -4%;
       right: -4%;
-      bottom: -10%;
-      height: 46%;
+      bottom: -4%;
+      height: 54%;
       background:
         linear-gradient(180deg, rgba(2, 8, 18, 0), rgba(3, 10, 22, 0.7) 38%, rgba(2, 8, 18, 0.96) 100%),
         radial-gradient(circle at 50% 0%, rgba(255, 255, 255, var(--haze-opacity)), transparent 52%);
@@ -665,9 +669,10 @@ ${renderMeta({
       }
       .hero-grid {
         grid-template-columns: 1fr;
+        gap: 14px;
       }
       .landmark-panel {
-        min-height: 210px;
+        min-height: 280px;
         margin-top: 2px;
       }
     }
