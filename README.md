@@ -160,6 +160,12 @@ Example outputs:
 - The page should read city and temperature first, then current weather facts plus short-term change, and only then the city landmark and footer metadata.
 - The landmark panel is intentionally secondary so it supports city identity without overtaking the weather itself.
 
+### Reduced Panel Feel
+
+- The page should keep core facts intact while avoiding a dashboard-like panel feel.
+- `天气` and `降水` now sit inside a lighter shared strip instead of two separate hard-edged cards.
+- `接下来` is rendered as a softer continuation block so the page reads as one weather state, not a stack of widgets.
+
 ### Weather Conditions (Chinese)
 
 | Code Range | Condition |

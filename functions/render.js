@@ -370,23 +370,24 @@ ${renderMeta({
       position: relative;
       z-index: 1;
       display: flex;
-      gap: 10px;
+      gap: 8px;
       align-items: center;
       flex-wrap: wrap;
-      margin-top: 4px;
+      margin-top: 2px;
     }
     .eyebrow,
     .status-chip {
       display: inline-flex;
       align-items: center;
       gap: 7px;
-      padding: 7px 12px;
+      padding: 5px 10px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.05);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      letter-spacing: 0.02em;
-      font-size: 12px;
-      color: rgba(233, 244, 255, 0.74);
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid rgba(255, 255, 255, 0.04);
+      letter-spacing: 0.01em;
+      font-size: 11.5px;
+      color: rgba(233, 244, 255, 0.68);
+      backdrop-filter: blur(10px);
     }
     .eyebrow::before,
     .status-chip::before {
@@ -408,68 +409,73 @@ ${renderMeta({
     .metric-row {
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
-      gap: 14px;
-      margin-top: 10px;
+      gap: 0;
+      margin-top: 12px;
+      border-radius: 24px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.042), rgba(255, 255, 255, 0.018));
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      overflow: hidden;
     }
     .insight-card {
-      margin-top: 10px;
-      padding: 18px 20px;
-      border-radius: 22px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.05));
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      margin-top: 14px;
+      padding-top: 14px;
+      max-width: 34rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.08);
     }
     .insight-label {
       display: block;
-      font-size: 12px;
-      letter-spacing: 0.06em;
-      color: rgba(232, 244, 255, 0.62);
+      font-size: 11.5px;
+      letter-spacing: 0.03em;
+      color: rgba(232, 244, 255, 0.58);
     }
     .insight-main {
       display: block;
-      margin-top: 8px;
-      font-size: 1.12rem;
+      margin-top: 10px;
+      font-size: 1.08rem;
       font-weight: 600;
       color: #fff;
+      line-height: 1.55;
     }
     .insight-sub {
       display: block;
-      margin-top: 6px;
-      color: rgba(236, 245, 255, 0.74);
-      font-size: 0.95rem;
+      margin-top: 7px;
+      color: rgba(236, 245, 255, 0.68);
+      font-size: 0.94rem;
+      line-height: 1.6;
     }
     .metric-card {
-      padding: 15px 17px;
-      border-radius: 22px;
-      background: rgba(255, 255, 255, 0.045);
-      border: 1px solid rgba(255, 255, 255, 0.07);
-      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+      padding: 14px 18px 13px;
+      min-width: 0;
+    }
+    .metric-card + .metric-card {
+      border-left: 1px solid rgba(255, 255, 255, 0.05);
     }
     .metric-label {
       display: block;
-      font-size: 12px;
-      letter-spacing: 0.06em;
-      color: rgba(232, 244, 255, 0.66);
+      font-size: 11.5px;
+      letter-spacing: 0.03em;
+      color: rgba(232, 244, 255, 0.58);
     }
     .metric-value {
       display: block;
-      margin-top: 8px;
-      font-size: 1.5rem;
+      margin-top: 6px;
+      font-size: 1.4rem;
       font-weight: 600;
       color: #fff;
+      line-height: 1.3;
     }
     .landmark-panel {
       position: relative;
-      padding: 18px 18px 14px;
+      padding: 12px 12px 8px;
       border-radius: 28px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(9, 16, 28, 0.16));
-      border: 1px solid rgba(255, 255, 255, 0.06);
-      min-height: 274px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(9, 16, 28, 0.04));
+      border: 1px solid rgba(255, 255, 255, 0.035);
+      min-height: 258px;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       overflow: hidden;
-      margin-top: 38px;
+      margin-top: 44px;
     }
     .landmark-panel::before {
       content: "";
@@ -488,15 +494,15 @@ ${renderMeta({
       z-index: 1;
       display: flex;
       justify-content: flex-start;
-      gap: 12px;
+      gap: 10px;
       align-items: center;
-      margin-bottom: 12px;
-      color: rgba(231, 242, 255, 0.66);
-      font-size: 0.86rem;
+      margin-bottom: 10px;
+      color: rgba(231, 242, 255, 0.58);
+      font-size: 0.8rem;
     }
     .landmark-caption strong {
-      font-size: 0.96rem;
-      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.92rem;
+      color: rgba(255, 255, 255, 0.84);
     }
     .landmark-art {
       position: relative;
@@ -534,12 +540,13 @@ ${renderMeta({
       flex-wrap: wrap;
       margin-top: 20px;
       padding-top: 18px;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      color: rgba(236, 245, 255, 0.74);
-      font-size: 0.92rem;
+      border-top: 1px solid rgba(255, 255, 255, 0.06);
+      color: rgba(236, 245, 255, 0.7);
+      font-size: 0.9rem;
     }
     .weather-footer strong {
-      color: #fff;
+      color: rgba(255, 255, 255, 0.82);
+      font-weight: 600;
     }
     .stale-warning {
       padding: 12px 14px;
@@ -733,12 +740,12 @@ ${renderMeta({
                 <span class="metric-value">${safeCondition}</span>
               </div>
               <div class="metric-card">
-                <span class="metric-label">降水概率</span>
+                <span class="metric-label">降水</span>
                 <span class="metric-value">${safePrecipitationText}</span>
               </div>
             </div>
             <div class="insight-card">
-              <span class="insight-label">短时变化</span>
+              <span class="insight-label">接下来</span>
               <span class="insight-main">${safeShortTermTrendText}</span>
               <span class="insight-sub">${safeOutingAdvice}</span>
             </div>
