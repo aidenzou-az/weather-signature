@@ -144,6 +144,12 @@ Example outputs:
 - The current deployment keeps `Beijing / 北京` mapped to the Temple of Heaven, while unknown cities fall back to a generic skyline.
 - Adding another supported city now means extending the config module rather than adding new hard-coded city branches inside render or rule logic.
 
+### HTML Language Experience
+
+- The HTML page body is intentionally rendered in Chinese to avoid mixed-language labels in the main reading flow.
+- Page labels such as weather, precipitation, and next-hours insight are rendered as `天气`、`降水概率`、`接下来`.
+- City display in the page body can use a city-level Chinese display name from `lib/city-config.js`, while the document title may still keep the existing compatibility format.
+
 ### Weather Conditions (Chinese)
 
 | Code Range | Condition |

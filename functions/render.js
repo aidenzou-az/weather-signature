@@ -46,7 +46,7 @@ function renderMeta({ title, description, canonicalUrl, ogImageUrl }) {
 export function renderContentPage(data, { canonicalUrl, ogImageUrl }) {
   const title = data.title;
   const visual = getVisualState(data);
-  const safeCity = escapeHtml(data.city);
+  const safeCity = escapeHtml(data.cityDisplayName || data.city);
   const safeCondition = escapeHtml(data.condition);
   const safePrecipitationText = escapeHtml(data.precipitationText);
   const safeTimeStr = escapeHtml(data.timeStr);
@@ -373,8 +373,7 @@ ${renderMeta({
     }
     .city {
       font-size: clamp(1.2rem, 1rem + 0.8vw, 1.75rem);
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
+      letter-spacing: 0.08em;
       color: rgba(247, 251, 255, 0.86);
     }
     .temp {
@@ -417,8 +416,7 @@ ${renderMeta({
     .insight-label {
       display: block;
       font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      letter-spacing: 0.06em;
       color: rgba(232, 244, 255, 0.62);
     }
     .insight-main {
@@ -444,8 +442,7 @@ ${renderMeta({
     .metric-label {
       display: block;
       font-size: 12px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
+      letter-spacing: 0.06em;
       color: rgba(232, 244, 255, 0.66);
     }
     .metric-value {
@@ -719,16 +716,16 @@ ${renderMeta({
             </div>
             <div class="metric-row">
               <div class="metric-card">
-                <span class="metric-label">Weather</span>
+                <span class="metric-label">天气</span>
                 <span class="metric-value">${safeCondition}</span>
               </div>
               <div class="metric-card">
-                <span class="metric-label">Precipitation</span>
+                <span class="metric-label">降水概率</span>
                 <span class="metric-value">${safePrecipitationText}</span>
               </div>
             </div>
             <div class="insight-card">
-              <span class="insight-label">Next Hours</span>
+              <span class="insight-label">接下来</span>
               <span class="insight-main">${safeShortTermTrendText}</span>
               <span class="insight-sub">${safeOutingAdvice}</span>
             </div>

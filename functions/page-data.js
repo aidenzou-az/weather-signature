@@ -1,4 +1,5 @@
 import { getCachedWeather } from '../lib/cache.js';
+import { getCityDisplayName } from '../lib/city-config.js';
 import { getWeatherDescription } from '../lib/i18n.js';
 import {
   getDayPhase,
@@ -22,6 +23,7 @@ function formatOffsetTime(offsetSeconds, timestampMs = Date.now()) {
 
 export async function getWeatherPageData(env) {
   const city = env?.CITY || 'Beijing';
+  const cityDisplayName = getCityDisplayName(city);
   const apiKey = env?.OPENWEATHER_API_KEY;
   // EdgeOne KV is a global binding
   const kv = WEATHER_KV;
@@ -74,6 +76,7 @@ export async function getWeatherPageData(env) {
 
   return {
     city,
+    cityDisplayName,
     temp,
     feelsLike,
     humidity,
