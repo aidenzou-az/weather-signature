@@ -169,6 +169,123 @@ export function getWeatherFamily(conditionCode) {
   return 'unknown';
 }
 
+function getWeatherVariant(conditionCode, weatherFamily, humidity, windSpeed) {
+  if (weatherFamily === 'rain') {
+    if (conditionCode >= 300 && conditionCode < 400) {
+      return 'drizzle';
+    }
+    if (conditionCode >= 520 && conditionCode < 600) {
+      return 'showers';
+    }
+    return 'steady-rain';
+  }
+
+  if (weatherFamily === 'clouds') {
+    if (conditionCode >= 803) {
+      return 'overcast';
+    }
+    return 'broken-clouds';
+  }
+
+  if (weatherFamily === 'atmosphere') {
+    if (conditionCode === 701 || conditionCode === 741) {
+      return 'fog';
+    }
+    if ([721, 731, 751, 761, 762].includes(conditionCode)) {
+      return 'haze';
+    }
+    if (humidity >= 85) {
+      return 'fog';
+    }
+    return 'mist';
+  }
+
+  if (weatherFamily === 'thunder') {
+    return windSpeed >= 9 || conditionCode >= 210 ? 'active-thunder' : 'distant-thunder';
+  }
+
+  if (weatherFamily === 'snow') {
+    return windSpeed >= 7 ? 'wind-snow' : 'soft-snow';
+  }
+
+  return 'default';
+}
+
+function getThermalLabel(theme, { temp, feelsLike, humidity, windSpeed }) {
+  if (feelsLike <= 0) {
+    return windSpeed >= 6 ? '风寒贴面' : '冷感贴地';
+  }
+  if (feelsLike <= 8) {
+    return windSpeed >= 6 ? '风寒明显' : '冷空气增强';
+  }
+  if (feelsLike >= 33 || (feelsLike >= 29 && humidity >= 70)) {
+    return '闷热滞留';
+  }
+  if (feelsLike >= 28) {
+    return humidity >= 70 ? '热感裹身' : '热感抬升';
+  }
+  if (humidity >= 80 && temp >= 22) {
+    return '湿气堆积';
+  }
+  if (windSpeed >= 8) {
+    return '风感明显';
+  }
+  return theme.thermalLabel;
+}
+
+function getWeatherStatusLabel({
+  weatherFamily,
+  weatherVariant,
+  precipitationProbability,
+  humidity,
+  windSpeed,
+  temp,
+  feelsLike
+}) {
+  switch (weatherFamily) {
+    case 'thunder':
+      return weatherVariant === 'active-thunder'
+        ? '雷雨压境'
+        : '雷声逼近';
+    case 'rain':
+      if (weatherVariant === 'drizzle') {
+        return humidity >= 80 ? '潮雾细雨' : '细雨铺开';
+      }
+      if (weatherVariant === 'showers') {
+        return precipitationProbability >= 60 ? '阵雨来回' : '云间阵雨';
+      }
+      return precipitationProbability >= 70 ? '降雨进行中' : '雨势渐密';
+    case 'clouds':
+      if (weatherVariant === 'overcast') {
+        return precipitationProbability >= 60 ? '阴云蓄雨' : '厚云压城';
+      }
+      return humidity >= 70 ? '云隙带潮' : '流云铺展';
+    case 'snow':
+      return weatherVariant === 'wind-snow' ? '风雪掠过' : '雪意渐浓';
+    case 'atmosphere':
+      if (weatherVariant === 'fog') {
+        return '雾幕低垂';
+      }
+      if (weatherVariant === 'haze') {
+        return '灰霾弥散';
+      }
+      return '湿雾流动';
+    case 'clear':
+      if (feelsLike >= 30 || (temp >= 28 && humidity >= 70)) {
+        return '晴热上扬';
+      }
+      if (humidity >= 75 && precipitationProbability >= 30) {
+        return '晴空带潮';
+      }
+      if (windSpeed >= 8) {
+        return '晴空带风';
+      }
+      return '晴空舒展';
+    default:
+      return '天气流动';
+  }
+}
+
 export function getDayPhase(nowUnixSeconds, sunriseUnixSeconds, sunsetUnixSeconds, offsetSeconds) {
   if (Number.isFinite(sunriseUnixSeconds) && Number.isFinite(sunsetUnixSeconds)) {
     const morningEnd = sunriseUnixSeconds + (2.5 * 60 * 60);
@@ -299,6 +416,9 @@ export function getOutingAdvice(forecastSummary, conditionCode, precipitationPro
 
 export function getVisualState(data) {
   const temp = Number(data.temp);
+  const feelsLike = Number.isFinite(data.feelsLike) ? Number(data.feelsLike) : temp;
+  const humidity = Number.isFinite(data.humidity) ? clamp(Number(data.humidity), 0, 100) : 56;
+  const windSpeed = Number.isFinite(data.windSpeed) ? Math.max(0, Number(data.windSpeed)) : 0;
   const conditionCode = Number(data.conditionCode);
   const dayPhase = typeof data.dayPhase === 'string' ? data.dayPhase : 'day';
   const cityVisual = getCityVisualConfig(data.city);
@@ -306,90 +426,129 @@ export function getVisualState(data) {
     ? clamp(data.precipitationProbability, 0, 100)
     : 0;
   const rainLevel = precipitationProbability / 100;
+  const humidityFactor = clamp((humidity - 42) / 58, 0, 1);
+  const windFactor = clamp(windSpeed / 12, 0, 1);
+  const feelDelta = feelsLike - temp;
+  const heatFactor = clamp((feelsLike - 24) / 12, 0, 1);
+  const chillFactor = clamp((10 - feelsLike) / 12, 0, 1);
   const weatherFamily = getWeatherFamily(conditionCode);
-  const theme = getTemperatureTheme(temp);
+  const weatherVariant = getWeatherVariant(conditionCode, weatherFamily, humidity, windSpeed);
+  const theme = getTemperatureTheme(feelsLike);
   const phase = getDayPhaseState(dayPhase, weatherFamily);
   const isWetFamily = weatherFamily === 'rain' || weatherFamily === 'thunder';
+  const isFogLike = weatherVariant === 'fog' || weatherVariant === 'mist' || weatherVariant === 'haze';
   const glowOpacity = clamp(
     0.78
       - (weatherFamily === 'clouds' ? 0.18 : 0)
       - (weatherFamily === 'rain' ? 0.24 : 0)
       - (weatherFamily === 'thunder' ? 0.32 : 0)
-      + (temp > 26 ? 0.08 : 0),
+      - (isFogLike ? 0.12 : 0)
+      + (heatFactor * 0.12)
+      - (humidityFactor * 0.08)
+      + (feelDelta > 2 ? 0.04 : 0),
     0.18,
     0.88
   );
   const rainPresence = isWetFamily
-    ? clamp(0.42 + (rainLevel * 0.48), 0.42, 0.92)
+    ? clamp(
+      (weatherVariant === 'drizzle' ? 0.24 : weatherVariant === 'showers' ? 0.34 : 0.42)
+      + (rainLevel * (weatherVariant === 'drizzle' ? 0.22 : 0.48)),
+      0.2,
+      0.92
+    )
     : weatherFamily === 'clouds'
-      ? clamp(rainLevel * 0.22, 0, 0.22)
+      ? clamp((weatherVariant === 'overcast' ? 0.06 : 0.02) + (rainLevel * 0.22), 0, 0.28)
       : weatherFamily === 'atmosphere'
-        ? clamp(rainLevel * 0.12, 0, 0.12)
+        ? clamp((weatherVariant === 'haze' ? 0.01 : 0) + (rainLevel * 0.08), 0, 0.08)
         : 0;
   const rainOpacity = rainPresence;
   const rainLength = isWetFamily
-    ? clamp(34 + Math.round(rainLevel * 26), 34, 60)
+    ? clamp(
+      (weatherVariant === 'drizzle' ? 22 : weatherVariant === 'showers' ? 30 : 34)
+      + Math.round(rainLevel * 26)
+      + Math.round(windFactor * 10),
+      20,
+      64
+    )
     : weatherFamily === 'clouds'
-      ? clamp(18 + Math.round(rainLevel * 10), 18, 28)
+      ? clamp(18 + Math.round(rainLevel * 10), 18, 32)
       : 18;
   const driftDuration = clamp(
     16
-      - ((temp + 8) * 0.18)
+      - (feelsLike * 0.16)
       - (weatherFamily === 'thunder' ? 2.4 : 0)
-      - (weatherFamily === 'rain' ? 1.2 : 0),
+      - (weatherFamily === 'rain' ? 1.2 : 0)
+      - (windFactor * 4.8),
     7,
     18
   );
   const pulseDuration = clamp(
     8
-      - (temp * 0.08)
+      - (feelsLike * 0.08)
       - (weatherFamily === 'thunder' ? 1 : 0)
-      - (weatherFamily === 'rain' ? 0.4 : 0),
+      - (weatherFamily === 'rain' ? 0.4 : 0)
+      - (heatFactor * 0.8),
     4.2,
     8
   );
   const cloudOpacity = clamp(
     (weatherFamily === 'clear' ? 0.1 : 0)
-      + (weatherFamily === 'clouds' ? 0.34 : 0)
-      + (weatherFamily === 'rain' ? 0.28 : 0)
+      + (weatherFamily === 'clouds' ? (weatherVariant === 'overcast' ? 0.44 : 0.24) : 0)
+      + (weatherFamily === 'rain' ? (weatherVariant === 'drizzle' ? 0.18 : weatherVariant === 'showers' ? 0.24 : 0.28) : 0)
       + (weatherFamily === 'thunder' ? 0.32 : 0)
       + (weatherFamily === 'snow' ? 0.22 : 0)
-      + (weatherFamily === 'atmosphere' ? 0.26 : 0)
-      + (weatherFamily === 'clouds' ? rainLevel * 0.18 : 0),
+      + (weatherFamily === 'atmosphere' ? (weatherVariant === 'fog' ? 0.18 : 0.12) : 0)
+      + (weatherFamily === 'clouds' ? rainLevel * 0.18 : 0)
+      + (humidityFactor * 0.12),
     0.1,
-    0.78
+    0.84
   );
   const hazeOpacity = clamp(
-    (temp > 28 ? 0.22 : 0.08)
+    (feelsLike > 28 ? 0.18 : 0.06)
       + (weatherFamily === 'clouds' ? 0.04 : 0)
       + (weatherFamily === 'rain' ? 0.08 : 0)
       + (weatherFamily === 'thunder' ? 0.12 : 0)
-      + (weatherFamily === 'atmosphere' ? 0.18 : 0)
-      + (weatherFamily === 'snow' ? 0.08 : 0),
+      + (weatherFamily === 'atmosphere' ? (weatherVariant === 'fog' ? 0.24 : weatherVariant === 'haze' ? 0.2 : 0.16) : 0)
+      + (weatherFamily === 'snow' ? 0.08 : 0)
+      + (humidityFactor * 0.16)
+      - (windFactor * 0.04),
     0.08,
-    0.36
+    0.44
   );
-  const rainLabel = weatherFamily === 'thunder'
-    ? '雷暴逼近'
-    : weatherFamily === 'rain'
-      ? (precipitationProbability >= 60 ? '降雨进行中' : '湿润降雨')
-      : weatherFamily === 'clouds'
-        ? (precipitationProbability >= 60 ? '云层蓄雨' : '云层堆积')
-        : weatherFamily === 'snow'
-          ? '雪意渐浓'
-          : weatherFamily === 'clear'
-            ? (precipitationProbability >= 40 ? '晴空转潮' : '晴空舒展')
-            : weatherFamily === 'atmosphere'
-              ? '雾气弥散'
-              : '天气流动';
-  const rainLayerVisible = rainOpacity > 0.02;
+  const rainLabel = getWeatherStatusLabel({
+    weatherFamily,
+    weatherVariant,
+    precipitationProbability,
+    humidity,
+    windSpeed,
+    temp,
+    feelsLike
+  });
+  const rainLayerVisible = rainOpacity >= 0.08;
+  const thermalLabel = getThermalLabel(theme, {
+    temp,
+    feelsLike,
+    humidity,
+    windSpeed
+  });
+  const orbitOpacity = clamp(phase.orbitOpacity + (windFactor * 0.18), 0.72, 1.24);
+  const landmarkOpacity = clamp(
+    phase.landmarkOpacity - (isFogLike ? 0.14 : 0) - (humidityFactor * 0.05),
+    0.64,
+    1
+  );
 
   return {
     ...theme,
+    thermalLabel,
     dayPhase,
     dayPhaseLabel: phase.phaseLabel,
     weatherFamily,
+    weatherVariant,
     precipitationProbability,
+    feelsLike,
+    humidity,
+    windSpeed,
     cityKey: cityVisual.key,
     landmark: cityVisual.landmark,
     rainLabel,
@@ -415,9 +574,9 @@ export function getVisualState(data) {
       `--phase-overlay-bottom:${phase.overlayBottom}`,
       `--phase-rim:${phase.rimLight}`,
       `--star-opacity:${phase.starOpacity}`,
-      `--landmark-opacity:${phase.landmarkOpacity}`,
+      `--landmark-opacity:${landmarkOpacity}`,
       `--halo-scale:${phase.haloScale}`,
-      `--orbit-opacity:${phase.orbitOpacity}`,
+      `--orbit-opacity:${orbitOpacity}`,
       `--drift-duration:${driftDuration}s`,
       `--pulse-duration:${pulseDuration}s`
     ].join(';')

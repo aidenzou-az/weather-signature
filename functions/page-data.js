@@ -38,6 +38,15 @@ export async function getWeatherPageData(env) {
   const isStale = result.stale || false;
 
   const temp = Math.round(weather.main.temp);
+  const feelsLike = Number.isFinite(weather?.main?.feels_like)
+    ? Math.round(weather.main.feels_like)
+    : temp;
+  const humidity = Number.isFinite(weather?.main?.humidity)
+    ? Math.max(0, Math.min(100, Math.round(weather.main.humidity)))
+    : null;
+  const windSpeed = Number.isFinite(weather?.wind?.speed)
+    ? Math.max(0, Number(weather.wind.speed))
+    : null;
   const conditionCode = weather.weather[0].id;
   const condition = getWeatherDescription(conditionCode);
   const precipitationProbability = normalizePrecipitationProbability(weather.precipitationProbability);
@@ -63,6 +72,9 @@ export async function getWeatherPageData(env) {
   return {
     city,
     temp,
+    feelsLike,
+    humidity,
+    windSpeed,
     condition,
     conditionCode,
     precipitationProbability,

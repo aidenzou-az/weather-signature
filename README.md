@@ -130,6 +130,12 @@ Example outputs:
 - The page renders a compact `Next Hours` insight plus a simple outing suggestion such as whether carrying an umbrella is more prudent.
 - This remains a summary layer only; the page does not expand into a full hourly forecast table.
 
+### Weather Feel Modulation
+
+- The HTML weather page now also uses current `feels_like`, `humidity`, and `wind.speed` from OpenWeatherMap current weather data.
+- These fields primarily modulate motion and atmosphere instead of adding more visible metrics.
+- Examples: stronger wind speeds accelerate cloud drift, higher humidity thickens haze and dampens landmark clarity, and high feels-like heat shifts the thermal tone toward muggy heat rather than only reading the raw temperature.
+
 ### City Visual Configuration
 
 - City-specific landmark and city-level visual config now live in `lib/city-config.js`.
