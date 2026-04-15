@@ -166,6 +166,17 @@ Example outputs:
 - `天气` and `降水` now sit inside a lighter shared strip instead of two separate hard-edged cards.
 - `接下来` is rendered as a softer continuation block so the page reads as one weather state, not a stack of widgets.
 
+### Visual Regression
+
+- Run `node scripts/generate-visual-regression.mjs` to generate a repeatable local regression pack under `.tmp/visual-regression`.
+- The script emits:
+  - `index.html` for side-by-side browser review
+  - `scenarios/*.html` for single-scenario inspection
+  - `snapshots.json` with stable visual-state tokens
+  - `diff-summary.json` showing what changed versus the previous run
+- This pack is intended to cover the highest-risk weather edges such as 晴热、阴云高湿、毛毛雨、浓雾、大风晴天 and 雷雨.
+- Use it after rule or template changes before doing online verification, so obvious visual regressions are caught locally first.
+
 ### Weather Conditions (Chinese)
 
 | Code Range | Condition |
@@ -224,6 +235,8 @@ Example outputs:
 ├── content.html          # /content static weather content page
 ├── lib/
 │   ├── weather.js        # OpenWeatherMap API client
+├── scripts/
+│   └── generate-visual-regression.mjs  # Local visual regression generator
 │   ├── cache.js          # KV storage with TTL
 │   ├── city-config.js    # City visual configuration
 │   └── i18n.js           # Chinese weather translations
