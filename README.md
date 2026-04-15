@@ -143,8 +143,8 @@ Example outputs:
 - City-specific landmark and city-level visual config now live in `lib/city-config.js`.
 - The current deployment keeps `Beijing / 北京` mapped to the Temple of Heaven, while unknown cities fall back to a generic skyline.
 - Adding another supported city now means extending the config module rather than adding new hard-coded city branches inside render or rule logic.
-- City config can carry a subtle `theme` override so cities can contribute color tendency and atmosphere without rewriting weather rules.
-- The page currently uses that override only as a restrained tint on secondary surfaces; explicit city-explainer copy is intentionally avoided in the main reading flow.
+- City config can carry a subtle `theme` override plus a non-text `motif` layer so cities can contribute color tendency and restrained shape language without rewriting weather rules.
+- The page uses these fields only inside the landmark area and secondary surfaces; explicit city-explainer copy is intentionally avoided in the main reading flow.
 
 ### HTML Language Experience
 

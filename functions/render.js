@@ -58,6 +58,7 @@ export function renderContentPage(data, { canonicalUrl, ogImageUrl }) {
   const safeLandmarkCaption = escapeHtml(visual.landmark.caption);
   const safeThermalLabel = escapeHtml(visual.thermalLabel);
   const safeRainLabel = escapeHtml(visual.rainLabel);
+  const cityMotif = typeof visual.motif?.svg === 'string' ? visual.motif.svg : '';
 
   return `<!DOCTYPE html>
 <html lang="zh-CN" prefix="og: https://ogp.me/ns#">
@@ -477,7 +478,9 @@ ${renderMeta({
       position: relative;
       padding: 18px 18px 16px;
       border-radius: 32px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), var(--city-wash-soft));
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012) 22%, var(--city-wash-soft) 100%),
+        radial-gradient(circle at 26% 18%, var(--city-motif-fill) 0%, transparent 38%);
       border: 1px solid var(--city-outline);
       min-height: 398px;
       display: flex;
@@ -488,6 +491,13 @@ ${renderMeta({
       box-shadow:
         inset 0 1px 0 rgba(255, 255, 255, 0.06),
         0 18px 42px rgba(3, 7, 20, 0.18);
+    }
+    .landmark-backdrop {
+      position: absolute;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      mask-image: linear-gradient(180deg, transparent 0%, transparent 30%, black 42%, black 100%);
     }
     .landmark-panel::before {
       content: "";
@@ -501,6 +511,50 @@ ${renderMeta({
       filter: blur(14px);
       animation: haloPulse calc(var(--pulse-duration) * 1.2) ease-in-out infinite alternate;
     }
+    .landmark-backdrop::before {
+      content: "";
+      position: absolute;
+      left: 7%;
+      right: 7%;
+      top: 31%;
+      height: 33%;
+      border-radius: 28px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.012) 58%, rgba(255, 255, 255, 0)),
+        radial-gradient(circle at 50% 18%, var(--city-halo), transparent 54%);
+      border: 1px solid var(--city-outline-soft);
+      opacity: 0.72;
+    }
+    .landmark-motif {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      top: 35%;
+      bottom: 24%;
+      z-index: 0;
+      color: var(--city-motif-stroke);
+      opacity: var(--city-motif-opacity);
+      mix-blend-mode: screen;
+      filter: drop-shadow(0 0 24px rgba(255, 255, 255, 0.04));
+    }
+    .landmark-motif svg {
+      display: block;
+      width: 100%;
+      height: 100%;
+    }
+    .landmark-plate {
+      position: absolute;
+      left: 8%;
+      right: 8%;
+      bottom: 13%;
+      height: 33%;
+      border-radius: 28px 28px 0 0;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0) 30%),
+        linear-gradient(180deg, rgba(6, 12, 24, 0), var(--city-plate) 28%, rgba(4, 10, 22, 0.56) 100%);
+      border-top: 1px solid var(--city-outline-soft);
+      opacity: 0.92;
+    }
     .landmark-caption {
       position: relative;
       z-index: 1;
@@ -509,6 +563,10 @@ ${renderMeta({
       gap: 10px;
       align-items: center;
       margin-bottom: 0;
+      min-height: 66px;
+      padding: 6px 12px 12px 0;
+      background: linear-gradient(180deg, rgba(9, 16, 31, 0.86), rgba(9, 16, 31, 0.36) 68%, rgba(9, 16, 31, 0));
+      backdrop-filter: blur(8px);
       color: rgba(231, 242, 255, 0.64);
       font-size: 0.84rem;
     }
@@ -765,6 +823,10 @@ ${renderMeta({
             </div>
           </div>
           <aside class="landmark-panel">
+            <div class="landmark-backdrop">
+              ${cityMotif ? `<div class="landmark-motif">${cityMotif}</div>` : ''}
+              <div class="landmark-plate"></div>
+            </div>
             <div class="landmark-caption">
               <div>
                 <strong>${safeLandmarkLabel}</strong>
