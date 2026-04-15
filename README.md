@@ -124,6 +124,12 @@ Example outputs:
 - The page shifts between `清晨` / `白天` / `黄昏` / `夜晚` without changing the core weather condition logic.
 - Day-phase is a visual modulation layer only; current weather type still decides the main motion and atmosphere.
 
+### Short-Term Trend And Advice
+
+- The HTML weather page also uses the first few forecast items to derive a lightweight short-term trend signal.
+- The page renders a compact `Next Hours` insight plus a simple outing suggestion such as whether carrying an umbrella is more prudent.
+- This remains a summary layer only; the page does not expand into a full hourly forecast table.
+
 ### Weather Conditions (Chinese)
 
 | Code Range | Condition |

@@ -360,6 +360,8 @@ export function renderContentPage(data, { canonicalUrl, ogImageUrl }) {
   const safePrecipitationText = escapeHtml(data.precipitationText);
   const safeTimeStr = escapeHtml(data.timeStr);
   const safeDayPhaseLabel = escapeHtml(data.dayPhaseLabel || visual.dayPhaseLabel);
+  const safeShortTermTrendText = escapeHtml(data.shortTermTrendText || '短时趋势暂缺');
+  const safeOutingAdvice = escapeHtml(data.outingAdvice || '适合按当前天气出行');
   const safeTempText = escapeHtml(`${data.temp}°C`);
   const safeLandmarkLabel = escapeHtml(visual.landmark.label);
   const safeLandmarkCaption = escapeHtml(visual.landmark.caption);
@@ -663,6 +665,34 @@ ${renderMeta({
       gap: 14px;
       margin-top: 8px;
     }
+    .insight-card {
+      margin-top: 16px;
+      padding: 16px 18px;
+      border-radius: 22px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
+    }
+    .insight-label {
+      display: block;
+      font-size: 12px;
+      letter-spacing: 0.08em;
+      text-transform: uppercase;
+      color: rgba(232, 244, 255, 0.62);
+    }
+    .insight-main {
+      display: block;
+      margin-top: 8px;
+      font-size: 1.04rem;
+      font-weight: 600;
+      color: #fff;
+    }
+    .insight-sub {
+      display: block;
+      margin-top: 6px;
+      color: rgba(236, 245, 255, 0.74);
+      font-size: 0.95rem;
+    }
     .metric-card {
       padding: 16px 18px;
       border-radius: 22px;
@@ -922,6 +952,11 @@ ${renderMeta({
                 <span class="metric-label">Precipitation</span>
                 <span class="metric-value">${safePrecipitationText}</span>
               </div>
+            </div>
+            <div class="insight-card">
+              <span class="insight-label">Next Hours</span>
+              <span class="insight-main">${safeShortTermTrendText}</span>
+              <span class="insight-sub">${safeOutingAdvice}</span>
             </div>
           </div>
           <aside class="landmark-panel">
