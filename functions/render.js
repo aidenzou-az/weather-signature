@@ -326,64 +326,38 @@ ${renderMeta({
       mix-blend-mode: screen;
       animation: lightningFlash var(--thunder-flash-duration) linear infinite;
     }
-    .weather-top {
-      position: relative;
-      z-index: 1;
-      display: flex;
-      justify-content: space-between;
-      gap: 20px;
-      align-items: flex-start;
-      flex-wrap: wrap;
-    }
-    .eyebrow,
-    .status-chip {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
-      border-radius: 999px;
-      background: rgba(255, 255, 255, 0.08);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      letter-spacing: 0.03em;
-      font-size: 13px;
-      color: rgba(246, 251, 255, 0.88);
-    }
-    .eyebrow::before,
-    .status-chip::before {
-      content: "";
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: var(--accent);
-      box-shadow: 0 0 18px var(--accent-shadow);
-    }
     .hero-grid {
       position: relative;
       z-index: 1;
       display: grid;
-      grid-template-columns: minmax(0, 1.1fr) minmax(280px, 0.9fr);
-      gap: 28px;
-      margin-top: 28px;
-      align-items: end;
+      grid-template-columns: minmax(0, 1.22fr) minmax(240px, 0.78fr);
+      gap: 24px;
+      align-items: start;
     }
     .hero-copy {
       display: flex;
       flex-direction: column;
-      gap: 18px;
+      gap: 16px;
+      padding-top: 4px;
+    }
+    .hero-primary {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
     }
     .city {
-      font-size: clamp(1.2rem, 1rem + 0.8vw, 1.75rem);
+      font-size: clamp(1.12rem, 0.96rem + 0.7vw, 1.6rem);
       letter-spacing: 0.08em;
       color: rgba(247, 251, 255, 0.86);
     }
     .temp {
       display: flex;
       align-items: baseline;
-      gap: 18px;
+      gap: 14px;
       flex-wrap: wrap;
     }
     .temp strong {
-      font-size: clamp(4.3rem, 12vw, 7.5rem);
+      font-size: clamp(4.7rem, 12vw, 7.8rem);
       line-height: 0.95;
       font-weight: 650;
       letter-spacing: -0.06em;
@@ -391,6 +365,38 @@ ${renderMeta({
     .temp span {
       font-size: clamp(1rem, 0.92rem + 0.5vw, 1.4rem);
       color: var(--accent);
+    }
+    .weather-top {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      gap: 10px;
+      align-items: center;
+      flex-wrap: wrap;
+      margin-top: 4px;
+    }
+    .eyebrow,
+    .status-chip {
+      display: inline-flex;
+      align-items: center;
+      gap: 7px;
+      padding: 7px 12px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.07);
+      letter-spacing: 0.02em;
+      font-size: 12px;
+      color: rgba(233, 244, 255, 0.74);
+    }
+    .eyebrow::before,
+    .status-chip::before {
+      content: "";
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: var(--accent);
+      box-shadow: 0 0 14px var(--accent-shadow);
+      opacity: 0.82;
     }
     .summary {
       max-width: 34rem;
@@ -403,14 +409,14 @@ ${renderMeta({
       display: grid;
       grid-template-columns: repeat(2, minmax(0, 1fr));
       gap: 14px;
-      margin-top: 8px;
+      margin-top: 10px;
     }
     .insight-card {
-      margin-top: 16px;
-      padding: 16px 18px;
+      margin-top: 10px;
+      padding: 18px 20px;
       border-radius: 22px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.09), rgba(255, 255, 255, 0.04));
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.05));
+      border: 1px solid rgba(255, 255, 255, 0.1);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
     .insight-label {
@@ -422,7 +428,7 @@ ${renderMeta({
     .insight-main {
       display: block;
       margin-top: 8px;
-      font-size: 1.04rem;
+      font-size: 1.12rem;
       font-weight: 600;
       color: #fff;
     }
@@ -433,10 +439,10 @@ ${renderMeta({
       font-size: 0.95rem;
     }
     .metric-card {
-      padding: 16px 18px;
+      padding: 15px 17px;
       border-radius: 22px;
-      background: rgba(255, 255, 255, 0.06);
-      border: 1px solid rgba(255, 255, 255, 0.08);
+      background: rgba(255, 255, 255, 0.045);
+      border: 1px solid rgba(255, 255, 255, 0.07);
       box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06);
     }
     .metric-label {
@@ -454,15 +460,16 @@ ${renderMeta({
     }
     .landmark-panel {
       position: relative;
-      padding: 24px 24px 18px;
+      padding: 18px 18px 14px;
       border-radius: 28px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(9, 16, 28, 0.22));
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      min-height: 320px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(9, 16, 28, 0.16));
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      min-height: 274px;
       display: flex;
       flex-direction: column;
       justify-content: flex-end;
       overflow: hidden;
+      margin-top: 38px;
     }
     .landmark-panel::before {
       content: "";
@@ -480,16 +487,16 @@ ${renderMeta({
       position: relative;
       z-index: 1;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 12px;
       align-items: center;
-      margin-bottom: 18px;
-      color: rgba(247, 251, 255, 0.84);
-      font-size: 0.95rem;
+      margin-bottom: 12px;
+      color: rgba(231, 242, 255, 0.66);
+      font-size: 0.86rem;
     }
     .landmark-caption strong {
-      font-size: 1.15rem;
-      color: #fff;
+      font-size: 0.96rem;
+      color: rgba(255, 255, 255, 0.9);
     }
     .landmark-art {
       position: relative;
@@ -498,6 +505,9 @@ ${renderMeta({
       opacity: var(--landmark-opacity);
       transform: translateY(8px);
       animation: skylineFloat calc(var(--drift-duration) * 0.92) ease-in-out infinite alternate;
+      max-width: 88%;
+      margin-left: auto;
+      margin-right: auto;
     }
     .landmark-art svg {
       display: block;
@@ -518,15 +528,15 @@ ${renderMeta({
       position: relative;
       z-index: 1;
       display: flex;
-      justify-content: space-between;
+      justify-content: flex-start;
       gap: 16px;
       align-items: center;
       flex-wrap: wrap;
-      margin-top: 24px;
+      margin-top: 20px;
       padding-top: 18px;
       border-top: 1px solid rgba(255, 255, 255, 0.08);
       color: rgba(236, 245, 255, 0.74);
-      font-size: 0.96rem;
+      font-size: 0.92rem;
     }
     .weather-footer strong {
       color: #fff;
@@ -641,7 +651,8 @@ ${renderMeta({
         grid-template-columns: 1fr;
       }
       .landmark-panel {
-        min-height: 240px;
+        min-height: 210px;
+        margin-top: 2px;
       }
     }
     @media (max-width: 560px) {
@@ -703,16 +714,18 @@ ${renderMeta({
           <span></span>
           <span></span>
         </div>` : ''}
-        <div class="weather-top">
-          <div class="status-chip">${safeLandmarkLabel} · ${safeRainLabel}</div>
-          <div class="eyebrow">${safeDayPhaseLabel} · ${safeTimeStr}</div>
-        </div>
         <div class="hero-grid">
           <div class="hero-copy">
-            <div class="city">${safeCity}</div>
-            <div class="temp">
-              <strong>${safeTempText}</strong>
-              <span>${safeThermalLabel}</span>
+            <div class="hero-primary">
+              <div class="city">${safeCity}</div>
+              <div class="temp">
+                <strong>${safeTempText}</strong>
+                <span>${safeThermalLabel}</span>
+              </div>
+            </div>
+            <div class="weather-top">
+              <div class="status-chip">${safeLandmarkLabel} · ${safeRainLabel}</div>
+              <div class="eyebrow">${safeDayPhaseLabel} · ${safeTimeStr}</div>
             </div>
             <div class="metric-row">
               <div class="metric-card">

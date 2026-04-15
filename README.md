@@ -155,6 +155,11 @@ Example outputs:
 - The page body copy is intentionally split into three layers: status copy should stay sensory, factual labels should stay direct, and outing suggestions should stay action-oriented.
 - When tuning copy, prefer removing explanation tone and translation-like phrasing before adding more words.
 
+### Reading Priority
+
+- The page should read city and temperature first, then current weather facts plus short-term change, and only then the city landmark and footer metadata.
+- The landmark panel is intentionally secondary so it supports city identity without overtaking the weather itself.
+
 ### Weather Conditions (Chinese)
 
 | Code Range | Condition |
