@@ -139,15 +139,69 @@ function getWeatherFamily(conditionCode) {
   return 'unknown';
 }
 
+function getDayPhaseState(dayPhase, weatherFamily) {
+  const cloudDimming = weatherFamily === 'clouds' || weatherFamily === 'rain' || weatherFamily === 'thunder';
+
+  switch (dayPhase) {
+    case 'morning':
+      return {
+        phaseLabel: '清晨',
+        overlayTop: 'rgba(255, 205, 136, 0.24)',
+        overlayBottom: 'rgba(255, 243, 214, 0.06)',
+        rimLight: 'rgba(255, 229, 176, 0.34)',
+        starOpacity: cloudDimming ? 0.02 : 0.06,
+        landmarkOpacity: 0.96,
+        haloScale: 1.08,
+        orbitOpacity: 1.04
+      };
+    case 'dusk':
+      return {
+        phaseLabel: '黄昏',
+        overlayTop: 'rgba(255, 144, 106, 0.28)',
+        overlayBottom: 'rgba(69, 46, 93, 0.14)',
+        rimLight: 'rgba(255, 198, 137, 0.24)',
+        starOpacity: cloudDimming ? 0.08 : 0.18,
+        landmarkOpacity: 0.88,
+        haloScale: 0.92,
+        orbitOpacity: 0.92
+      };
+    case 'night':
+      return {
+        phaseLabel: '夜晚',
+        overlayTop: 'rgba(8, 17, 44, 0.48)',
+        overlayBottom: 'rgba(2, 8, 24, 0.28)',
+        rimLight: 'rgba(132, 185, 255, 0.18)',
+        starOpacity: cloudDimming ? 0.1 : 0.38,
+        landmarkOpacity: 0.82,
+        haloScale: 0.8,
+        orbitOpacity: 0.82
+      };
+    case 'day':
+    default:
+      return {
+        phaseLabel: '白天',
+        overlayTop: 'rgba(255, 255, 255, 0.08)',
+        overlayBottom: 'rgba(255, 255, 255, 0)',
+        rimLight: 'rgba(255, 255, 255, 0.16)',
+        starOpacity: 0,
+        landmarkOpacity: 1,
+        haloScale: 1,
+        orbitOpacity: 1
+      };
+  }
+}
+
 function getVisualState(data) {
   const temp = Number(data.temp);
   const conditionCode = Number(data.conditionCode);
+  const dayPhase = typeof data.dayPhase === 'string' ? data.dayPhase : 'day';
   const precipitationProbability = typeof data.precipitationProbability === 'number'
     ? clamp(data.precipitationProbability, 0, 100)
     : 0;
   const rainLevel = precipitationProbability / 100;
   const weatherFamily = getWeatherFamily(conditionCode);
   const theme = getTemperatureTheme(temp);
+  const phase = getDayPhaseState(dayPhase, weatherFamily);
   const isWetFamily = weatherFamily === 'rain' || weatherFamily === 'thunder';
   const glowOpacity = clamp(
     0.78
@@ -225,6 +279,8 @@ function getVisualState(data) {
 
   return {
     ...theme,
+    dayPhase,
+    dayPhaseLabel: phase.phaseLabel,
     weatherFamily,
     precipitationProbability,
     landmark: getCityLandmark(data.city),
@@ -247,6 +303,13 @@ function getVisualState(data) {
       `--rain-length:${rainLength}px`,
       `--cloud-opacity:${cloudOpacity}`,
       `--haze-opacity:${hazeOpacity}`,
+      `--phase-overlay-top:${phase.overlayTop}`,
+      `--phase-overlay-bottom:${phase.overlayBottom}`,
+      `--phase-rim:${phase.rimLight}`,
+      `--star-opacity:${phase.starOpacity}`,
+      `--landmark-opacity:${phase.landmarkOpacity}`,
+      `--halo-scale:${phase.haloScale}`,
+      `--orbit-opacity:${phase.orbitOpacity}`,
       `--drift-duration:${driftDuration}s`,
       `--pulse-duration:${pulseDuration}s`
     ].join(';')
@@ -291,13 +354,13 @@ function renderMeta({ title, description, canonicalUrl, ogImageUrl }) {
 
 export function renderContentPage(data, { canonicalUrl, ogImageUrl }) {
   const title = data.title;
+  const visual = getVisualState(data);
   const safeCity = escapeHtml(data.city);
   const safeCondition = escapeHtml(data.condition);
   const safePrecipitationText = escapeHtml(data.precipitationText);
   const safeTimeStr = escapeHtml(data.timeStr);
-  const safeTitle = escapeHtml(data.title);
+  const safeDayPhaseLabel = escapeHtml(data.dayPhaseLabel || visual.dayPhaseLabel);
   const safeTempText = escapeHtml(`${data.temp}°C`);
-  const visual = getVisualState(data);
   const safeLandmarkLabel = escapeHtml(visual.landmark.label);
   const safeLandmarkCaption = escapeHtml(visual.landmark.caption);
   const safeThermalLabel = escapeHtml(visual.thermalLabel);
@@ -325,6 +388,7 @@ ${renderMeta({
       font-family: "SF Pro Display", "Segoe UI", sans-serif;
       color: #f7fbff;
       background:
+        linear-gradient(180deg, var(--phase-overlay-top) 0%, var(--phase-overlay-bottom) 70%),
         radial-gradient(circle at 18% 18%, var(--glow-soft) 0%, transparent 34%),
         radial-gradient(circle at 82% 16%, rgba(255, 255, 255, 0.14), transparent 20%),
         linear-gradient(160deg, var(--sky-top) 0%, var(--sky-bottom) 100%);
@@ -356,6 +420,71 @@ ${renderMeta({
       height: 18rem;
       opacity: calc(var(--glow-opacity) * 0.55);
       animation-duration: calc(var(--pulse-duration) * 1.35);
+      transform: scale(var(--halo-scale));
+    }
+    .phase-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      background:
+        linear-gradient(180deg, var(--phase-rim) 0%, rgba(255, 255, 255, 0) 32%),
+        radial-gradient(circle at 50% 115%, rgba(255, 255, 255, 0.08), transparent 46%);
+      mix-blend-mode: screen;
+    }
+    .phase-stars {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 1;
+      opacity: var(--star-opacity);
+    }
+    .phase-stars span {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.9);
+      box-shadow: 0 0 14px rgba(189, 223, 255, 0.55);
+      animation: starPulse 4.8s ease-in-out infinite alternate;
+    }
+    .phase-stars span:nth-child(1) {
+      top: 12%;
+      left: 18%;
+      animation-delay: 0.2s;
+    }
+    .phase-stars span:nth-child(2) {
+      top: 18%;
+      left: 36%;
+      width: 3px;
+      height: 3px;
+      animation-delay: 1.1s;
+    }
+    .phase-stars span:nth-child(3) {
+      top: 14%;
+      right: 24%;
+      animation-delay: 1.8s;
+    }
+    .phase-stars span:nth-child(4) {
+      top: 26%;
+      right: 14%;
+      width: 3px;
+      height: 3px;
+      animation-delay: 0.8s;
+    }
+    .phase-stars span:nth-child(5) {
+      top: 32%;
+      left: 12%;
+      width: 2px;
+      height: 2px;
+      animation-delay: 2.3s;
+    }
+    .phase-stars span:nth-child(6) {
+      top: 24%;
+      left: 54%;
+      width: 2px;
+      height: 2px;
+      animation-delay: 1.5s;
     }
     .weather-shell {
       position: relative;
@@ -411,7 +540,7 @@ ${renderMeta({
       display: block;
       border-radius: 999px;
       background: rgba(255, 255, 255, 0.08);
-      opacity: var(--cloud-opacity);
+      opacity: calc(var(--cloud-opacity) * var(--orbit-opacity));
       filter: blur(2px);
       animation: drift calc(var(--drift-duration) * 1.1) ease-in-out infinite alternate;
     }
@@ -598,6 +727,7 @@ ${renderMeta({
       position: relative;
       z-index: 1;
       color: rgba(245, 251, 255, 0.92);
+      opacity: var(--landmark-opacity);
       transform: translateY(8px);
       animation: skylineFloat calc(var(--drift-duration) * 0.92) ease-in-out infinite alternate;
     }
@@ -693,6 +823,16 @@ ${renderMeta({
         transform: translateY(-4px);
       }
     }
+    @keyframes starPulse {
+      from {
+        opacity: 0.42;
+        transform: scale(0.86);
+      }
+      to {
+        opacity: 1;
+        transform: scale(1.16);
+      }
+    }
     @media (max-width: 880px) {
       .weather-shell {
         width: min(100vw - 20px, 760px);
@@ -743,6 +883,15 @@ ${renderMeta({
 </head>
 <body style="${visual.style}">
   <main class="weather-stage">
+    <div class="phase-layer"></div>
+    <div class="phase-stars">
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+      <span></span>
+    </div>
     <section class="weather-shell">
       <article class="weather-card">
         <div class="status-orbit">
@@ -755,6 +904,7 @@ ${renderMeta({
         </div>` : ''}
         <div class="weather-top">
           <div class="status-chip">${safeLandmarkLabel} · ${safeRainLabel}</div>
+          <div class="eyebrow">${safeDayPhaseLabel} · ${safeTimeStr}</div>
         </div>
         <div class="hero-grid">
           <div class="hero-copy">
@@ -786,7 +936,7 @@ ${renderMeta({
           </aside>
         </div>
         <div class="weather-footer">
-          <div><strong>更新时间</strong> ${safeTimeStr}</div>
+          <div><strong>城市时间</strong> ${safeTimeStr}</div>
           ${data.isStale ? '<div class="stale-warning">天气数据暂时无法更新，当前展示为缓存结果</div>' : ''}
         </div>
       </article>

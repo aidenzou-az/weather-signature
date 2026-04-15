@@ -6,7 +6,7 @@ A simple EdgeOne Pages Function that serves a dedicated preview shell for your F
 
 ## Overview
 
-This service fetches weather data from OpenWeatherMap, enriches it with forecast precipitation probability, caches it for 30 minutes, and serves:
+This service fetches weather data from OpenWeatherMap, enriches it with forecast precipitation probability, derives the target city's local time and day-phase visual state, caches it for 30 minutes, and serves:
 
 - `/s` as a stable signature-preview page backed by a static rewrite
 - `/content` as a new weather content page URL backed by a static rewrite
@@ -110,11 +110,19 @@ Example outputs:
 - `广州 30°C 小雨 降水65% - 18:45`
 - If forecast precipitation is unavailable, the title falls back to `{CITY} {TEMPERATURE}°C {CONDITION} - {HH:MM}`
 
+`HH:MM` uses the target city's local time derived from the weather API timezone field, not the server timezone.
+
 ### Precipitation Probability Source
 
 - Current temperature and condition still come from OpenWeatherMap current weather data.
 - Precipitation probability is derived from the nearest available item in OpenWeatherMap's 5 day / 3 hour forecast response (`list.pop`).
 - If the forecast request fails or the field is unavailable, the page still renders and shows `暂无数据`.
+
+### Day-Phase Rendering
+
+- The HTML weather page also derives a day-phase state from the target city's local time plus sunrise / sunset data in the current weather response.
+- The page shifts between `清晨` / `白天` / `黄昏` / `夜晚` without changing the core weather condition logic.
+- Day-phase is a visual modulation layer only; current weather type still decides the main motion and atmosphere.
 
 ### Weather Conditions (Chinese)
 
