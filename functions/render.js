@@ -476,7 +476,7 @@ ${renderMeta({
     }
     .landmark-panel {
       position: relative;
-      padding: 18px 18px 16px;
+      padding: 20px 18px 16px;
       border-radius: 32px;
       background:
         linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012) 22%, var(--city-wash-soft) 100%),
@@ -516,24 +516,25 @@ ${renderMeta({
       position: absolute;
       left: 7%;
       right: 7%;
-      top: 31%;
-      height: 33%;
-      border-radius: 28px;
+      top: 26%;
+      height: 31%;
+      border-radius: 32px;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.012) 58%, rgba(255, 255, 255, 0)),
-        radial-gradient(circle at 50% 18%, var(--city-halo), transparent 54%);
-      border: 1px solid var(--city-outline-soft);
-      opacity: 0.72;
+        linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.016) 44%, rgba(255, 255, 255, 0)),
+        radial-gradient(circle at 48% 12%, rgba(255, 255, 255, 0.12), transparent 46%),
+        radial-gradient(circle at 50% 18%, var(--city-halo), transparent 56%);
+      opacity: 0.52;
+      filter: blur(1px);
     }
     .landmark-motif {
       position: absolute;
       left: 8%;
       right: 8%;
-      top: 35%;
+      top: 33%;
       bottom: 24%;
       z-index: 0;
       color: var(--city-motif-stroke);
-      opacity: var(--city-motif-opacity);
+      opacity: calc(var(--city-motif-opacity) * 0.88);
       mix-blend-mode: screen;
       filter: drop-shadow(0 0 24px rgba(255, 255, 255, 0.04));
     }
@@ -560,19 +561,46 @@ ${renderMeta({
       z-index: 1;
       display: flex;
       justify-content: flex-start;
-      gap: 10px;
       align-items: center;
       margin-bottom: 0;
-      min-height: 66px;
-      padding: 6px 12px 12px 0;
-      background: linear-gradient(180deg, rgba(9, 16, 31, 0.86), rgba(9, 16, 31, 0.36) 68%, rgba(9, 16, 31, 0));
-      backdrop-filter: blur(8px);
+      min-height: 62px;
+      padding: 0;
       color: rgba(231, 242, 255, 0.64);
       font-size: 0.84rem;
+    }
+    .landmark-caption > div {
+      position: relative;
+      display: inline-flex;
+      flex-direction: column;
+      gap: 2px;
+      max-width: min(82%, 240px);
+      padding: 10px 14px 11px;
+      border-radius: 18px;
+      background:
+        linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.024) 46%, rgba(255, 255, 255, 0.012) 100%),
+        linear-gradient(180deg, rgba(8, 15, 30, 0.46), rgba(8, 15, 30, 0.18));
+      border: 1px solid rgba(255, 255, 255, 0.08);
+      box-shadow:
+        inset 0 1px 0 rgba(255, 255, 255, 0.08),
+        0 8px 24px rgba(4, 8, 20, 0.14);
+      backdrop-filter: blur(14px);
+    }
+    .landmark-caption > div::before {
+      content: "";
+      position: absolute;
+      left: 14px;
+      right: 14px;
+      top: 0;
+      height: 1px;
+      background: linear-gradient(90deg, var(--city-accent), rgba(255, 255, 255, 0));
+      opacity: 0.72;
     }
     .landmark-caption strong {
       font-size: 1rem;
       color: rgba(255, 255, 255, 0.9);
+    }
+    .landmark-caption div div {
+      color: rgba(231, 242, 255, 0.58);
     }
     .landmark-art {
       position: relative;
