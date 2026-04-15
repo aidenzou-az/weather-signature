@@ -74,7 +74,7 @@ function getTemperatureTheme(temp) {
       surface: 'rgba(10, 31, 47, 0.68)',
       border: 'rgba(181, 229, 255, 0.24)',
       accent: '#daf4ff',
-      thermalLabel: '舒适流动'
+      thermalLabel: '体感舒展'
     };
   }
 
@@ -86,7 +86,7 @@ function getTemperatureTheme(temp) {
       surface: 'rgba(34, 24, 39, 0.62)',
       border: 'rgba(255, 223, 159, 0.24)',
       accent: '#fff1bf',
-      thermalLabel: '暖光扩散'
+      thermalLabel: '暖意渐开'
     };
   }
 
@@ -97,7 +97,7 @@ function getTemperatureTheme(temp) {
     surface: 'rgba(47, 17, 28, 0.64)',
     border: 'rgba(255, 193, 128, 0.28)',
     accent: '#ffe0b5',
-    thermalLabel: '热浪脉冲'
+    thermalLabel: '热感上涌'
   };
 }
 
@@ -232,7 +232,7 @@ function getWeatherVariant(conditionCode, weatherFamily, humidity, windSpeed) {
 
 function getThermalLabel(theme, { temp, feelsLike, humidity, windSpeed }) {
   if (feelsLike <= 0) {
-    return windSpeed >= 6 ? '风寒贴面' : '冷感贴地';
+    return windSpeed >= 6 ? '风寒贴面' : '凉意贴地';
   }
   if (feelsLike <= 8) {
     return windSpeed >= 6 ? '风寒明显' : '冷空气增强';
@@ -244,7 +244,7 @@ function getThermalLabel(theme, { temp, feelsLike, humidity, windSpeed }) {
     return humidity >= 70 ? '热感裹身' : '热感抬升';
   }
   if (humidity >= 80 && temp >= 22) {
-    return '湿气堆积';
+    return '闷感渐起';
   }
   if (windSpeed >= 8) {
     return '风感明显';
@@ -271,12 +271,12 @@ function getWeatherStatusLabel({
         return humidity >= 80 ? '潮雾细雨' : '细雨铺开';
       }
       if (weatherVariant === 'showers') {
-        return precipitationProbability >= 60 ? '阵雨来回' : '云间阵雨';
+        return precipitationProbability >= 60 ? '阵雨反复' : '云间阵雨';
       }
       return precipitationProbability >= 70 ? '降雨进行中' : '雨势渐密';
     case 'clouds':
       if (weatherVariant === 'overcast') {
-        return precipitationProbability >= 60 ? '阴云蓄雨' : '厚云压城';
+        return precipitationProbability >= 60 ? '阴云蓄雨' : '厚云低垂';
       }
       return humidity >= 70 ? '云隙带潮' : '流云铺展';
     case 'snow':
@@ -288,20 +288,20 @@ function getWeatherStatusLabel({
       if (weatherVariant === 'haze') {
         return '灰霾弥散';
       }
-      return '湿雾流动';
+      return '轻雾浮动';
     case 'clear':
       if (feelsLike >= 30 || (temp >= 28 && humidity >= 70)) {
         return '晴热上扬';
       }
       if (humidity >= 75 && precipitationProbability >= 30) {
-        return '晴空带潮';
+        return '晴空微潮';
       }
       if (windSpeed >= 8) {
         return '晴空带风';
       }
       return '晴空舒展';
     default:
-      return '天气流动';
+      return '天气平稳';
   }
 }
 
@@ -382,21 +382,24 @@ export function normalizeShortTermForecast(summary) {
 
 export function getShortTermTrendText(forecastSummary, conditionCode, precipitationProbability) {
   const forecast = normalizeShortTermForecast(forecastSummary);
+  const weatherFamily = getWeatherFamily(conditionCode);
 
   if (!forecast) {
+    if (weatherFamily === 'atmosphere') {
+      return '未来数小时雾感偏重';
+    }
     if (precipitationProbability === null) {
-      return '短时趋势暂缺';
+      return '短时变化暂缺';
     }
     if (precipitationProbability >= 60) {
-      return '未来3小时湿润感较强';
+      return '未来数小时湿气偏重';
     }
     if (precipitationProbability <= 20) {
       return '未来数小时降水偏低';
     }
-    return '未来3小时天气平稳';
+    return '未来数小时变化不大';
   }
 
-  const weatherFamily = getWeatherFamily(conditionCode);
   const transitionFamily = getWeatherFamily(forecast.transitionConditionCode);
   const peakPop = forecast.peakPrecipitationProbability;
   const peakHours = forecast.peakOffsetHours || 3;
@@ -407,38 +410,38 @@ export function getShortTermTrendText(forecastSummary, conditionCode, precipitat
   const peakHumidity = forecast.peakHumidity;
 
   if ((weatherFamily === 'rain' || weatherFamily === 'thunder') && forecast.trendDirection === 'down') {
-    return '短时降水逐步减弱';
+    return '短时雨势渐缓';
   }
   if ((weatherFamily === 'rain' || weatherFamily === 'thunder') && forecast.trendDirection !== 'down') {
     if (peakPop >= 70 && peakHours <= 3) {
-      return '这阵雨势还会再撑一会';
+      return '这阵雨还会持续一会';
     }
     return '未来几小时仍有降雨';
   }
   if ((transitionFamily === 'rain' || transitionFamily === 'thunder') && rainStartHours !== null) {
     return rainStartHours <= 2
       ? `${rainStartHours}小时内可能转雨`
-      : `约${rainStartHours}小时后雨带靠近`;
+      : `约${rainStartHours}小时后有雨`;
   }
   if (windRiseHours !== null && peakWindSpeed !== null && peakWindSpeed >= 8) {
     return windRiseHours <= 2
-      ? '短时风感会明显抬升'
-      : `约${windRiseHours}小时后风感增强`;
+      ? '短时风感更明显'
+      : `约${windRiseHours}小时后风更明显`;
   }
   if (humidityRiseHours !== null && peakHumidity !== null && peakHumidity >= 85) {
     return humidityRiseHours <= 2
-      ? '湿气正在往上堆'
+      ? '湿气正在加重'
       : `约${humidityRiseHours}小时后湿气更重`;
   }
   if (peakPop >= 70 && rainStartHours !== null) {
     return rainStartHours <= 3
-      ? '未来3小时降水走强'
-      : `约${rainStartHours}小时后降水抬升`;
+      ? '未来数小时降水转强'
+      : `约${rainStartHours}小时后降水增强`;
   }
   if (forecast.trendDirection === 'up' && peakPop >= 40) {
     return peakHours <= 3
-      ? '湿润感正在靠近'
-      : `未来${peakHours}小时湿润感增强`;
+      ? '空气会更潮'
+      : `未来${peakHours}小时空气更潮`;
   }
   if (forecast.trendDirection === 'down' && peakPop <= 40) {
     return '这波云雨正在退开';
@@ -446,7 +449,7 @@ export function getShortTermTrendText(forecastSummary, conditionCode, precipitat
   if (peakPop <= 20) {
     return '未来数小时降水偏低';
   }
-  return '未来数小时变化平稳';
+  return '未来数小时变化不大';
 }
 
 export function getOutingAdvice(forecastSummary, conditionCode, precipitationProbability, temp, feelsLike = temp) {
@@ -459,33 +462,36 @@ export function getOutingAdvice(forecastSummary, conditionCode, precipitationPro
   const peakHumidity = forecast?.peakHumidity;
 
   if (weatherFamily === 'rain' || weatherFamily === 'thunder') {
-    return '建议带伞出门';
+    return '带伞出门更稳妥';
+  }
+  if (weatherFamily === 'atmosphere') {
+    return [701, 741].includes(conditionCode) ? '外出留意能见度' : '外出留意空气状态';
   }
   if ((transitionFamily === 'rain' || transitionFamily === 'thunder') && Number.isFinite(rainStartHours)) {
-    return rainStartHours <= 2 ? '出门前最好带伞' : '晚些外出留意降雨';
+    return rainStartHours <= 2 ? '出门前记得带伞' : '晚些出门留意降雨';
   }
   if (Number.isFinite(windRiseHours)) {
-    return windRiseHours <= 2 ? '外出留意风感增强' : '晚些风会更明显';
+    return windRiseHours <= 2 ? '外出留意风感' : '晚些风会更明显';
   }
   if (Number.isFinite(peakHumidity) && peakHumidity >= 85 && feelsLike >= 25) {
-    return '体感会比气温更闷';
+    return '外出留意闷热感';
   }
   if (peakPop !== null && peakPop >= 70) {
-    return '备伞更稳妥';
+    return '备伞出门更稳妥';
   }
   if (peakPop !== null && peakPop >= 40) {
     return '外出留意降水变化';
   }
   if (temp <= 5) {
-    return '出门注意保暖';
+    return '出门注意添衣';
   }
   if (feelsLike >= 30) {
-    return '外出注意闷热体感';
+    return '外出留意闷热感';
   }
   if (temp >= 28) {
     return '适合轻装出门';
   }
-  return '适合按当前天气出行';
+  return '适合按计划出行';
 }
 
 export function getVisualState(data) {

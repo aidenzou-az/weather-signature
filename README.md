@@ -147,8 +147,13 @@ Example outputs:
 ### HTML Language Experience
 
 - The HTML page body is intentionally rendered in Chinese to avoid mixed-language labels in the main reading flow.
-- Page labels such as weather, precipitation, and next-hours insight are rendered as `天气`、`降水概率`、`接下来`.
+- Page labels such as weather, precipitation, and short-term insight are rendered as `天气`、`降水概率`、`短时变化`.
 - City display in the page body can use a city-level Chinese display name from `lib/city-config.js`, while the document title may still keep the existing compatibility format.
+
+### Copy Layering
+
+- The page body copy is intentionally split into three layers: status copy should stay sensory, factual labels should stay direct, and outing suggestions should stay action-oriented.
+- When tuning copy, prefer removing explanation tone and translation-like phrasing before adding more words.
 
 ### Weather Conditions (Chinese)
 

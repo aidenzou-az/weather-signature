@@ -52,7 +52,7 @@ export function renderContentPage(data, { canonicalUrl, ogImageUrl }) {
   const safeTimeStr = escapeHtml(data.timeStr);
   const safeDayPhaseLabel = escapeHtml(data.dayPhaseLabel || visual.dayPhaseLabel);
   const safeShortTermTrendText = escapeHtml(data.shortTermTrendText || '短时趋势暂缺');
-  const safeOutingAdvice = escapeHtml(data.outingAdvice || '适合按当前天气出行');
+  const safeOutingAdvice = escapeHtml(data.outingAdvice || '适合按计划出行');
   const safeTempText = escapeHtml(`${data.temp}°C`);
   const safeLandmarkLabel = escapeHtml(visual.landmark.label);
   const safeLandmarkCaption = escapeHtml(visual.landmark.caption);
@@ -725,7 +725,7 @@ ${renderMeta({
               </div>
             </div>
             <div class="insight-card">
-              <span class="insight-label">接下来</span>
+              <span class="insight-label">短时变化</span>
               <span class="insight-main">${safeShortTermTrendText}</span>
               <span class="insight-sub">${safeOutingAdvice}</span>
             </div>
@@ -743,7 +743,7 @@ ${renderMeta({
         </div>
         <div class="weather-footer">
           <div><strong>城市时间</strong> ${safeTimeStr}</div>
-          ${data.isStale ? '<div class="stale-warning">天气数据暂时无法更新，当前展示为缓存结果</div>' : ''}
+          ${data.isStale ? '<div class="stale-warning">天气暂未刷新，当前为缓存内容</div>' : ''}
         </div>
       </article>
     </section>
