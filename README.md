@@ -130,6 +130,12 @@ Example outputs:
 - The page renders a compact `Next Hours` insight plus a simple outing suggestion such as whether carrying an umbrella is more prudent.
 - This remains a summary layer only; the page does not expand into a full hourly forecast table.
 
+### City Visual Configuration
+
+- City-specific landmark and city-level visual config now live in `lib/city-config.js`.
+- The current deployment keeps `Beijing / 北京` mapped to the Temple of Heaven, while unknown cities fall back to a generic skyline.
+- Adding another supported city now means extending the config module rather than adding new hard-coded city branches inside render or rule logic.
+
 ### Weather Conditions (Chinese)
 
 | Code Range | Condition |
@@ -189,6 +195,7 @@ Example outputs:
 ├── lib/
 │   ├── weather.js        # OpenWeatherMap API client
 │   ├── cache.js          # KV storage with TTL
+│   ├── city-config.js    # City visual configuration
 │   └── i18n.js           # Chinese weather translations
 ├── edgeone.json          # EdgeOne Pages configuration
 ├── .env.example          # Environment variable template
