@@ -143,6 +143,8 @@ Example outputs:
 - City-specific landmark and city-level visual config now live in `lib/city-config.js`.
 - The current deployment keeps `Beijing / 北京` mapped to the Temple of Heaven, while unknown cities fall back to a generic skyline.
 - Adding another supported city now means extending the config module rather than adding new hard-coded city branches inside render or rule logic.
+- City config can now also carry a lightweight `identity` block plus a subtle `theme` override, so cities can contribute label copy, color tendency, and atmosphere without rewriting weather rules.
+- The page consumes those fields in a restrained way: a small city-signature line near the city name, a quiet note in the landmark panel, and a soft city-tinted wash in the secondary surfaces.
 
 ### HTML Language Experience
 

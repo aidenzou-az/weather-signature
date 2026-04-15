@@ -515,6 +515,8 @@ export function getVisualState(data) {
   const weatherFamily = getWeatherFamily(conditionCode);
   const weatherVariant = getWeatherVariant(conditionCode, weatherFamily, humidity, windSpeed);
   const theme = getTemperatureTheme(feelsLike);
+  const cityTheme = cityVisual.theme || {};
+  const cityIdentity = cityVisual.identity || {};
   const phase = getDayPhaseState(dayPhase, weatherFamily);
   const isWetFamily = weatherFamily === 'rain' || weatherFamily === 'thunder';
   const isFogLike = weatherVariant === 'fog' || weatherVariant === 'mist' || weatherVariant === 'haze';
@@ -698,6 +700,11 @@ export function getVisualState(data) {
     windSpeed,
     windDirection,
     cityKey: cityVisual.key,
+    cityIdentity: {
+      label: cityIdentity.label || '城市气质',
+      tone: cityIdentity.tone || '随天气舒展',
+      note: cityIdentity.note || '保留当前城市的背景气息'
+    },
     landmark: cityVisual.landmark,
     rainLabel,
     rainLayerVisible,
@@ -717,6 +724,11 @@ export function getVisualState(data) {
       `--glow-panel:${hexToRgba(theme.glow, 0.28)}`,
       `--glow-halo:${hexToRgba(theme.glow, 0.36)}`,
       `--accent-shadow:${hexToRgba(theme.accent, 0.65)}`,
+      `--city-accent:${cityTheme.accent || theme.accent}`,
+      `--city-outline:${hexToRgba(cityTheme.accent || theme.accent, 0.24)}`,
+      `--city-wash-soft:${hexToRgba(cityTheme.wash || theme.glow, 0.12)}`,
+      `--city-wash-strong:${hexToRgba(cityTheme.wash || theme.glow, 0.24)}`,
+      `--city-halo:${hexToRgba(cityTheme.halo || cityTheme.accent || theme.glow, 0.24)}`,
       `--glow-opacity:${glowOpacity}`,
       `--rain-opacity:${rainOpacity}`,
       `--rain-length:${rainLength}px`,

@@ -56,6 +56,9 @@ export function renderContentPage(data, { canonicalUrl, ogImageUrl }) {
   const safeTempText = escapeHtml(`${data.temp}°C`);
   const safeLandmarkLabel = escapeHtml(visual.landmark.label);
   const safeLandmarkCaption = escapeHtml(visual.landmark.caption);
+  const safeCityIdentityLabel = escapeHtml(visual.cityIdentity?.label || '城市气质');
+  const safeCityIdentityTone = escapeHtml(visual.cityIdentity?.tone || '随天气舒展');
+  const safeCityIdentityNote = escapeHtml(visual.cityIdentity?.note || '保留当前城市的背景气息');
   const safeThermalLabel = escapeHtml(visual.thermalLabel);
   const safeRainLabel = escapeHtml(visual.rainLabel);
 
@@ -82,6 +85,7 @@ ${renderMeta({
       color: #f7fbff;
       background:
         linear-gradient(180deg, var(--phase-overlay-top) 0%, var(--phase-overlay-bottom) 70%),
+        radial-gradient(circle at 72% 76%, var(--city-wash-strong) 0%, transparent 28%),
         radial-gradient(circle at 18% 18%, var(--glow-soft) 0%, transparent 34%),
         radial-gradient(circle at 82% 16%, rgba(255, 255, 255, 0.14), transparent 20%),
         linear-gradient(160deg, var(--sky-top) 0%, var(--sky-bottom) 100%);
@@ -207,7 +211,8 @@ ${renderMeta({
       inset: 0;
       background:
         linear-gradient(140deg, rgba(255, 255, 255, 0.08), transparent 38%),
-        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 32%);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 32%),
+        radial-gradient(circle at 78% 82%, var(--city-wash-soft) 0%, transparent 24%);
       pointer-events: none;
     }
     .weather-card::after {
@@ -350,6 +355,31 @@ ${renderMeta({
       letter-spacing: 0.08em;
       color: rgba(247, 251, 255, 0.86);
     }
+    .city-sigil {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      align-self: flex-start;
+      padding: 4px 9px;
+      border-radius: 999px;
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015));
+      border: 1px solid var(--city-outline);
+      color: rgba(244, 247, 255, 0.76);
+      font-size: 11px;
+      letter-spacing: 0.04em;
+    }
+    .city-sigil::before {
+      content: "";
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: var(--city-accent);
+      box-shadow: 0 0 12px var(--city-halo);
+    }
+    .city-sigil strong {
+      color: var(--city-accent);
+      font-weight: 600;
+    }
     .temp {
       display: flex;
       align-items: baseline;
@@ -382,12 +412,15 @@ ${renderMeta({
       gap: 7px;
       padding: 5px 10px;
       border-radius: 999px;
-      background: rgba(255, 255, 255, 0.03);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.018));
       border: 1px solid rgba(255, 255, 255, 0.04);
       letter-spacing: 0.01em;
       font-size: 11.5px;
       color: rgba(233, 244, 255, 0.68);
       backdrop-filter: blur(10px);
+    }
+    .status-chip {
+      border-color: var(--city-outline);
     }
     .eyebrow::before,
     .status-chip::before {
@@ -398,6 +431,10 @@ ${renderMeta({
       background: var(--accent);
       box-shadow: 0 0 14px var(--accent-shadow);
       opacity: 0.82;
+    }
+    .status-chip::before {
+      background: var(--city-accent);
+      box-shadow: 0 0 14px var(--city-halo);
     }
     .summary {
       max-width: 34rem;
@@ -468,8 +505,8 @@ ${renderMeta({
       position: relative;
       padding: 12px 12px 8px;
       border-radius: 28px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(9, 16, 28, 0.04));
-      border: 1px solid rgba(255, 255, 255, 0.035);
+      background: linear-gradient(180deg, rgba(255, 255, 255, 0.03), var(--city-wash-soft));
+      border: 1px solid var(--city-outline);
       min-height: 258px;
       display: flex;
       flex-direction: column;
@@ -484,7 +521,7 @@ ${renderMeta({
       width: 8rem;
       height: 8rem;
       border-radius: 50%;
-      background: var(--glow-halo);
+      background: var(--city-halo);
       opacity: calc(var(--glow-opacity) * 0.76);
       filter: blur(10px);
       animation: haloPulse calc(var(--pulse-duration) * 1.2) ease-in-out infinite alternate;
@@ -503,6 +540,12 @@ ${renderMeta({
     .landmark-caption strong {
       font-size: 0.92rem;
       color: rgba(255, 255, 255, 0.84);
+    }
+    .landmark-note {
+      margin-top: 4px;
+      color: rgba(237, 243, 255, 0.62);
+      font-size: 0.76rem;
+      letter-spacing: 0.03em;
     }
     .landmark-art {
       position: relative;
@@ -725,6 +768,7 @@ ${renderMeta({
           <div class="hero-copy">
             <div class="hero-primary">
               <div class="city">${safeCity}</div>
+              <div class="city-sigil"><strong>${safeCityIdentityLabel}</strong><span>${safeCityIdentityTone}</span></div>
               <div class="temp">
                 <strong>${safeTempText}</strong>
                 <span>${safeThermalLabel}</span>
@@ -755,6 +799,7 @@ ${renderMeta({
               <div>
                 <strong>${safeLandmarkLabel}</strong>
                 <div>${safeLandmarkCaption}</div>
+                <div class="landmark-note">${safeCityIdentityNote}</div>
               </div>
             </div>
             <div class="landmark-art">${visual.landmark.svg}</div>
