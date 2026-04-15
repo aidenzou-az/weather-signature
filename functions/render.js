@@ -56,9 +56,6 @@ export function renderContentPage(data, { canonicalUrl, ogImageUrl }) {
   const safeTempText = escapeHtml(`${data.temp}°C`);
   const safeLandmarkLabel = escapeHtml(visual.landmark.label);
   const safeLandmarkCaption = escapeHtml(visual.landmark.caption);
-  const safeCityIdentityLabel = escapeHtml(visual.cityIdentity?.label || '城市气质');
-  const safeCityIdentityTone = escapeHtml(visual.cityIdentity?.tone || '随天气舒展');
-  const safeCityIdentityNote = escapeHtml(visual.cityIdentity?.note || '保留当前城市的背景气息');
   const safeThermalLabel = escapeHtml(visual.thermalLabel);
   const safeRainLabel = escapeHtml(visual.rainLabel);
 
@@ -355,31 +352,6 @@ ${renderMeta({
       letter-spacing: 0.08em;
       color: rgba(247, 251, 255, 0.86);
     }
-    .city-sigil {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      align-self: flex-start;
-      padding: 4px 9px;
-      border-radius: 999px;
-      background: linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.015));
-      border: 1px solid var(--city-outline);
-      color: rgba(244, 247, 255, 0.76);
-      font-size: 11px;
-      letter-spacing: 0.04em;
-    }
-    .city-sigil::before {
-      content: "";
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: var(--city-accent);
-      box-shadow: 0 0 12px var(--city-halo);
-    }
-    .city-sigil strong {
-      color: var(--city-accent);
-      font-weight: 600;
-    }
     .temp {
       display: flex;
       align-items: baseline;
@@ -540,12 +512,6 @@ ${renderMeta({
     .landmark-caption strong {
       font-size: 0.92rem;
       color: rgba(255, 255, 255, 0.84);
-    }
-    .landmark-note {
-      margin-top: 4px;
-      color: rgba(237, 243, 255, 0.62);
-      font-size: 0.76rem;
-      letter-spacing: 0.03em;
     }
     .landmark-art {
       position: relative;
@@ -768,7 +734,6 @@ ${renderMeta({
           <div class="hero-copy">
             <div class="hero-primary">
               <div class="city">${safeCity}</div>
-              <div class="city-sigil"><strong>${safeCityIdentityLabel}</strong><span>${safeCityIdentityTone}</span></div>
               <div class="temp">
                 <strong>${safeTempText}</strong>
                 <span>${safeThermalLabel}</span>
@@ -799,7 +764,6 @@ ${renderMeta({
               <div>
                 <strong>${safeLandmarkLabel}</strong>
                 <div>${safeLandmarkCaption}</div>
-                <div class="landmark-note">${safeCityIdentityNote}</div>
               </div>
             </div>
             <div class="landmark-art">${visual.landmark.svg}</div>
