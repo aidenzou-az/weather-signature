@@ -47,6 +47,9 @@ export async function getWeatherPageData(env) {
   const windSpeed = Number.isFinite(weather?.wind?.speed)
     ? Math.max(0, Number(weather.wind.speed))
     : null;
+  const windDirection = Number.isFinite(weather?.wind?.deg)
+    ? ((Number(weather.wind.deg) % 360) + 360) % 360
+    : null;
   const conditionCode = weather.weather[0].id;
   const condition = getWeatherDescription(conditionCode);
   const precipitationProbability = normalizePrecipitationProbability(weather.precipitationProbability);
@@ -75,6 +78,7 @@ export async function getWeatherPageData(env) {
     feelsLike,
     humidity,
     windSpeed,
+    windDirection,
     condition,
     conditionCode,
     precipitationProbability,

@@ -21,6 +21,25 @@ function getOffsetShiftedDate(offsetSeconds, timestampMs = Date.now()) {
   return new Date(timestampMs + (offsetSeconds * 1000));
 }
 
+function normalizeDegrees(value, fallback = 0) {
+  if (!Number.isFinite(value)) {
+    return fallback;
+  }
+
+  return ((Number(value) % 360) + 360) % 360;
+}
+
+function getMotionVector(headingDegrees, distance, verticalScale = 0.42) {
+  const radians = normalizeDegrees(headingDegrees) * (Math.PI / 180);
+  const x = Math.sin(radians) * distance;
+  const y = -Math.cos(radians) * distance * verticalScale;
+
+  return {
+    x: Math.round(x),
+    y: Math.round(y)
+  };
+}
+
 function getDayPhaseByHour(localHour) {
   if (localHour >= 5 && localHour < 11) {
     return 'morning';
@@ -474,6 +493,7 @@ export function getVisualState(data) {
   const feelsLike = Number.isFinite(data.feelsLike) ? Number(data.feelsLike) : temp;
   const humidity = Number.isFinite(data.humidity) ? clamp(Number(data.humidity), 0, 100) : 56;
   const windSpeed = Number.isFinite(data.windSpeed) ? Math.max(0, Number(data.windSpeed)) : 0;
+  const windDirection = normalizeDegrees(data.windDirection, 180);
   const conditionCode = Number(data.conditionCode);
   const dayPhase = typeof data.dayPhase === 'string' ? data.dayPhase : 'day';
   const cityVisual = getCityVisualConfig(data.city);
@@ -492,6 +512,27 @@ export function getVisualState(data) {
   const phase = getDayPhaseState(dayPhase, weatherFamily);
   const isWetFamily = weatherFamily === 'rain' || weatherFamily === 'thunder';
   const isFogLike = weatherVariant === 'fog' || weatherVariant === 'mist' || weatherVariant === 'haze';
+  const motionHeading = normalizeDegrees(windDirection + 180, 180);
+  const driftVector = getMotionVector(
+    motionHeading,
+    18 + (windFactor * 22) + (weatherFamily === 'thunder' ? 6 : 0) + (weatherVariant === 'showers' ? 4 : 0),
+    0.44
+  );
+  const fogVector = getMotionVector(
+    motionHeading + 24,
+    12 + (humidityFactor * 12) + (isFogLike ? 10 : 0),
+    0.28
+  );
+  const rainTilt = clamp(
+    Math.round((Math.sin(motionHeading * (Math.PI / 180)) * (8 + (windFactor * 16))) + (weatherFamily === 'thunder' ? 4 : 0)),
+    -24,
+    24
+  );
+  const rainShiftX = Math.round(
+    (Math.sin(motionHeading * (Math.PI / 180)) * (26 + (windFactor * 42)))
+    + (weatherVariant === 'showers' ? 10 : 0)
+    + (weatherFamily === 'thunder' ? 12 : 0)
+  );
   const glowOpacity = clamp(
     0.78
       - (weatherFamily === 'clouds' ? 0.18 : 0)
@@ -517,6 +558,17 @@ export function getVisualState(data) {
         ? clamp((weatherVariant === 'haze' ? 0.01 : 0) + (rainLevel * 0.08), 0, 0.08)
         : 0;
   const rainOpacity = rainPresence;
+  const rainLineCount = isWetFamily
+    ? weatherFamily === 'thunder'
+      ? 15
+      : weatherVariant === 'drizzle'
+        ? 7
+        : weatherVariant === 'showers'
+          ? 11
+          : 13
+    : weatherFamily === 'clouds' && rainLevel >= 0.5
+      ? 6
+      : 0;
   const rainLength = isWetFamily
     ? clamp(
       (weatherVariant === 'drizzle' ? 22 : weatherVariant === 'showers' ? 30 : 34)
@@ -528,6 +580,19 @@ export function getVisualState(data) {
     : weatherFamily === 'clouds'
       ? clamp(18 + Math.round(rainLevel * 10), 18, 32)
       : 18;
+  const rainBaseDuration = clamp(
+    weatherFamily === 'thunder'
+      ? 1.1
+      : weatherVariant === 'showers'
+        ? 1.45
+        : weatherVariant === 'steady-rain'
+          ? 1.7
+          : weatherVariant === 'drizzle'
+            ? 2.4
+            : 2.1,
+    1.1,
+    2.8
+  );
   const driftDuration = clamp(
     16
       - (feelsLike * 0.16)
@@ -570,12 +635,33 @@ export function getVisualState(data) {
     0.08,
     0.44
   );
+  const fogOpacity = clamp(
+    (isFogLike ? 0.18 : 0)
+      + (weatherVariant === 'drizzle' ? 0.08 : 0)
+      + (weatherVariant === 'overcast' ? 0.04 : 0)
+      + (humidityFactor * 0.18)
+      - (windFactor * 0.05),
+    0,
+    0.4
+  );
+  const fogLayerVisible = fogOpacity >= 0.12;
+  const fogDuration = clamp(driftDuration * (isFogLike ? 1.6 : 1.4), 9, 24);
+  const thunderFlashOpacity = weatherFamily === 'thunder'
+    ? clamp(weatherVariant === 'active-thunder' ? 0.34 : 0.2, 0.16, 0.38)
+    : 0;
+  const thunderFlashVisible = thunderFlashOpacity >= 0.16;
+  const thunderFlashDuration = clamp(
+    weatherVariant === 'active-thunder' ? 5.2 - (windFactor * 0.8) : 7.4 - (windFactor * 0.5),
+    4.2,
+    7.4
+  );
   const rainLabel = getWeatherStatusLabel({
     weatherFamily,
     weatherVariant,
     precipitationProbability,
     humidity,
     windSpeed,
+    windDirection,
     temp,
     feelsLike
   });
@@ -604,10 +690,15 @@ export function getVisualState(data) {
     feelsLike,
     humidity,
     windSpeed,
+    windDirection,
     cityKey: cityVisual.key,
     landmark: cityVisual.landmark,
     rainLabel,
     rainLayerVisible,
+    rainLineCount,
+    rainBaseDuration,
+    fogLayerVisible,
+    thunderFlashVisible,
     style: [
       `--sky-top:${theme.skyTop}`,
       `--sky-bottom:${theme.skyBottom}`,
@@ -623,8 +714,17 @@ export function getVisualState(data) {
       `--glow-opacity:${glowOpacity}`,
       `--rain-opacity:${rainOpacity}`,
       `--rain-length:${rainLength}px`,
+      `--rain-base-duration:${rainBaseDuration}s`,
+      `--rain-shift-x:${rainShiftX}px`,
+      `--rain-tilt:${rainTilt}deg`,
       `--cloud-opacity:${cloudOpacity}`,
       `--haze-opacity:${hazeOpacity}`,
+      `--fog-opacity:${fogOpacity}`,
+      `--fog-duration:${fogDuration}s`,
+      `--fog-drift-x:${fogVector.x}px`,
+      `--fog-drift-y:${fogVector.y}px`,
+      `--thunder-opacity:${thunderFlashOpacity}`,
+      `--thunder-flash-duration:${thunderFlashDuration}s`,
       `--phase-overlay-top:${phase.overlayTop}`,
       `--phase-overlay-bottom:${phase.overlayBottom}`,
       `--phase-rim:${phase.rimLight}`,
@@ -632,6 +732,8 @@ export function getVisualState(data) {
       `--landmark-opacity:${landmarkOpacity}`,
       `--halo-scale:${phase.haloScale}`,
       `--orbit-opacity:${orbitOpacity}`,
+      `--drift-x:${driftVector.x}px`,
+      `--drift-y:${driftVector.y}px`,
       `--drift-duration:${driftDuration}s`,
       `--pulse-duration:${pulseDuration}s`
     ].join(';')

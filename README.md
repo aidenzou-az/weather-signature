@@ -133,9 +133,10 @@ Example outputs:
 
 ### Weather Feel Modulation
 
-- The HTML weather page now also uses current `feels_like`, `humidity`, and `wind.speed` from OpenWeatherMap current weather data.
+- The HTML weather page now also uses current `feels_like`, `humidity`, `wind.speed`, and `wind.deg` from OpenWeatherMap current weather data.
 - These fields primarily modulate motion and atmosphere instead of adding more visible metrics.
 - Examples: stronger wind speeds accelerate cloud drift, higher humidity thickens haze and dampens landmark clarity, and high feels-like heat shifts the thermal tone toward muggy heat rather than only reading the raw temperature.
+- Motion layering is now more directional: wind direction biases cloud drift and rain slant, fog uses a slower independent sweep, and thunder adds a restrained flash layer instead of only increasing rain intensity.
 
 ### City Visual Configuration
 

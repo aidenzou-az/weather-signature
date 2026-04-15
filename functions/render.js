@@ -1,11 +1,17 @@
 import { escapeHtml } from './html.js';
 import { getVisualState } from './weather-rules.js';
 
-function renderRainLines() {
-  return Array.from({ length: 9 }, (_, index) => {
-    const left = 8 + (index * 10.5);
-    const delay = (index * 0.55).toFixed(2);
-    const duration = (1.8 + ((index % 3) * 0.35)).toFixed(2);
+function renderRainLines(visual) {
+  const rainLineCount = Number.isFinite(visual?.rainLineCount) ? Math.max(4, Math.round(visual.rainLineCount)) : 9;
+  const baseDuration = typeof visual?.rainBaseDuration === 'number'
+    ? visual.rainBaseDuration
+    : 1.8;
+  const spread = rainLineCount > 1 ? 84 / (rainLineCount - 1) : 0;
+
+  return Array.from({ length: rainLineCount }, (_, index) => {
+    const left = 8 + (index * spread);
+    const delay = (index * 0.42).toFixed(2);
+    const duration = (baseDuration + ((index % 4) * 0.22)).toFixed(2);
 
     return `<span class="rain-line" style="--line-left:${left}%;--line-delay:${delay}s;--line-duration:${duration}s;"></span>`;
   }).join('');
@@ -266,9 +272,59 @@ ${renderMeta({
       height: var(--rain-length);
       background: linear-gradient(180deg, rgba(255, 255, 255, 0), rgba(197, 231, 255, 0.95));
       opacity: var(--rain-opacity);
-      transform: rotate(12deg);
+      transform: rotate(var(--rain-tilt));
       animation: rainFall var(--line-duration) linear infinite;
       animation-delay: var(--line-delay);
+    }
+    .fog-layer {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: var(--fog-opacity);
+      mask-image: linear-gradient(180deg, transparent 0%, black 20%, black 94%, transparent 100%);
+      mix-blend-mode: screen;
+    }
+    .fog-layer span {
+      position: absolute;
+      display: block;
+      border-radius: 50%;
+      background: radial-gradient(circle at 35% 35%, rgba(255, 255, 255, 0.42), rgba(255, 255, 255, 0.12) 46%, transparent 74%);
+      filter: blur(10px);
+      animation: fogSweep var(--fog-duration) ease-in-out infinite alternate;
+    }
+    .fog-layer span:nth-child(1) {
+      top: 12%;
+      left: -6%;
+      width: 54%;
+      height: 30%;
+    }
+    .fog-layer span:nth-child(2) {
+      bottom: 18%;
+      right: -8%;
+      width: 48%;
+      height: 26%;
+      animation-duration: calc(var(--fog-duration) * 0.86);
+    }
+    .fog-layer span:nth-child(3) {
+      top: 42%;
+      left: 18%;
+      width: 42%;
+      height: 22%;
+      animation-duration: calc(var(--fog-duration) * 1.08);
+    }
+    .storm-flash {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      opacity: var(--thunder-opacity);
+      background:
+        radial-gradient(circle at 72% 14%, rgba(255, 248, 221, 0.56), transparent 18%),
+        radial-gradient(circle at 66% 22%, rgba(185, 222, 255, 0.28), transparent 24%),
+        linear-gradient(180deg, rgba(255, 255, 255, 0.04), transparent 34%);
+      mix-blend-mode: screen;
+      animation: lightningFlash var(--thunder-flash-duration) linear infinite;
     }
     .weather-top {
       position: relative;
@@ -503,23 +559,31 @@ ${renderMeta({
     }
     @keyframes rainFall {
       0% {
-        transform: translate3d(0, -30%, 0) rotate(12deg);
+        transform: translate3d(calc(var(--rain-shift-x) * -0.12), -30%, 0) rotate(var(--rain-tilt));
         opacity: 0;
       }
       18% {
         opacity: var(--rain-opacity);
       }
       100% {
-        transform: translate3d(-28px, 125vh, 0) rotate(12deg);
+        transform: translate3d(var(--rain-shift-x), 125vh, 0) rotate(var(--rain-tilt));
         opacity: 0;
       }
     }
     @keyframes drift {
       from {
-        transform: translate3d(-8px, 0, 0);
+        transform: translate3d(calc(var(--drift-x) * -0.35), calc(var(--drift-y) * -0.18), 0);
       }
       to {
-        transform: translate3d(18px, -10px, 0);
+        transform: translate3d(var(--drift-x), var(--drift-y), 0);
+      }
+    }
+    @keyframes fogSweep {
+      from {
+        transform: translate3d(calc(var(--fog-drift-x) * -0.28), calc(var(--fog-drift-y) * -0.18), 0) scale(0.96);
+      }
+      to {
+        transform: translate3d(var(--fog-drift-x), var(--fog-drift-y), 0) scale(1.04);
       }
     }
     @keyframes haloPulse {
@@ -546,6 +610,25 @@ ${renderMeta({
       to {
         opacity: 1;
         transform: scale(1.16);
+      }
+    }
+    @keyframes lightningFlash {
+      0%,
+      84%,
+      100% {
+        opacity: 0;
+      }
+      86% {
+        opacity: calc(var(--thunder-opacity) * 0.9);
+      }
+      88% {
+        opacity: 0.06;
+      }
+      89% {
+        opacity: var(--thunder-opacity);
+      }
+      91% {
+        opacity: 0;
       }
     }
     @media (max-width: 880px) {
@@ -614,8 +697,14 @@ ${renderMeta({
           <span></span>
           <span></span>
         </div>
+        ${visual.thunderFlashVisible ? '<div class="storm-flash"></div>' : ''}
         ${visual.rainLayerVisible ? `<div class="rain-layer">
-          ${renderRainLines()}
+          ${renderRainLines(visual)}
+        </div>` : ''}
+        ${visual.fogLayerVisible ? `<div class="fog-layer">
+          <span></span>
+          <span></span>
+          <span></span>
         </div>` : ''}
         <div class="weather-top">
           <div class="status-chip">${safeLandmarkLabel} · ${safeRainLabel}</div>
