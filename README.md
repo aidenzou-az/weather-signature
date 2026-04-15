@@ -128,6 +128,7 @@ Example outputs:
 
 - The HTML weather page also uses the first few forecast items to derive a lightweight short-term trend signal.
 - The page renders a compact `Next Hours` insight plus a simple outing suggestion such as whether carrying an umbrella is more prudent.
+- The trend layer can now describe approaching change windows such as rain moving in, wind feeling stronger later, or humidity building up in the next few hours.
 - This remains a summary layer only; the page does not expand into a full hourly forecast table.
 
 ### Weather Feel Modulation

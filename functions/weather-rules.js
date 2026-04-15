@@ -330,6 +330,13 @@ export function normalizeShortTermForecast(summary) {
   const peakPrecipitationProbability = normalizePrecipitationProbability(summary.peakPrecipitationProbability);
   const peakOffsetHours = Number.isFinite(summary.peakOffsetHours) ? Math.max(1, Math.round(summary.peakOffsetHours)) : null;
   const rainStartOffsetHours = Number.isFinite(summary.rainStartOffsetHours) ? Math.max(1, Math.round(summary.rainStartOffsetHours)) : null;
+  const transitionOffsetHours = Number.isFinite(summary.transitionOffsetHours) ? Math.max(1, Math.round(summary.transitionOffsetHours)) : null;
+  const windRiseOffsetHours = Number.isFinite(summary.windRiseOffsetHours) ? Math.max(1, Math.round(summary.windRiseOffsetHours)) : null;
+  const humidityRiseOffsetHours = Number.isFinite(summary.humidityRiseOffsetHours) ? Math.max(1, Math.round(summary.humidityRiseOffsetHours)) : null;
+  const transitionConditionCode = Number.isFinite(summary.transitionConditionCode) ? summary.transitionConditionCode : null;
+  const nextConditionCode = Number.isFinite(summary.nextConditionCode) ? summary.nextConditionCode : null;
+  const peakWindSpeed = Number.isFinite(summary.peakWindSpeed) ? Number(summary.peakWindSpeed) : null;
+  const peakHumidity = Number.isFinite(summary.peakHumidity) ? Math.max(0, Math.min(100, Math.round(summary.peakHumidity))) : null;
   const trendDirection = ['up', 'down', 'steady'].includes(summary.trendDirection)
     ? summary.trendDirection
     : 'steady';
@@ -343,7 +350,14 @@ export function normalizeShortTermForecast(summary) {
     peakPrecipitationProbability: peakPrecipitationProbability ?? nextPrecipitationProbability,
     peakOffsetHours,
     rainStartOffsetHours,
-    trendDirection
+    trendDirection,
+    nextConditionCode,
+    transitionConditionCode,
+    transitionOffsetHours,
+    peakWindSpeed,
+    windRiseOffsetHours,
+    peakHumidity,
+    humidityRiseOffsetHours
   };
 }
 
@@ -364,15 +378,38 @@ export function getShortTermTrendText(forecastSummary, conditionCode, precipitat
   }
 
   const weatherFamily = getWeatherFamily(conditionCode);
+  const transitionFamily = getWeatherFamily(forecast.transitionConditionCode);
   const peakPop = forecast.peakPrecipitationProbability;
   const peakHours = forecast.peakOffsetHours || 3;
   const rainStartHours = forecast.rainStartOffsetHours;
+  const windRiseHours = forecast.windRiseOffsetHours;
+  const humidityRiseHours = forecast.humidityRiseOffsetHours;
+  const peakWindSpeed = forecast.peakWindSpeed;
+  const peakHumidity = forecast.peakHumidity;
 
   if ((weatherFamily === 'rain' || weatherFamily === 'thunder') && forecast.trendDirection === 'down') {
     return '短时降水逐步减弱';
   }
   if ((weatherFamily === 'rain' || weatherFamily === 'thunder') && forecast.trendDirection !== 'down') {
-    return '未来3小时仍有降雨';
+    if (peakPop >= 70 && peakHours <= 3) {
+      return '这阵雨势还会再撑一会';
+    }
+    return '未来几小时仍有降雨';
+  }
+  if ((transitionFamily === 'rain' || transitionFamily === 'thunder') && rainStartHours !== null) {
+    return rainStartHours <= 2
+      ? `${rainStartHours}小时内可能转雨`
+      : `约${rainStartHours}小时后雨带靠近`;
+  }
+  if (windRiseHours !== null && peakWindSpeed !== null && peakWindSpeed >= 8) {
+    return windRiseHours <= 2
+      ? '短时风感会明显抬升'
+      : `约${windRiseHours}小时后风感增强`;
+  }
+  if (humidityRiseHours !== null && peakHumidity !== null && peakHumidity >= 85) {
+    return humidityRiseHours <= 2
+      ? '湿气正在往上堆'
+      : `约${humidityRiseHours}小时后湿气更重`;
   }
   if (peakPop >= 70 && rainStartHours !== null) {
     return rainStartHours <= 3
@@ -380,10 +417,12 @@ export function getShortTermTrendText(forecastSummary, conditionCode, precipitat
       : `约${rainStartHours}小时后降水抬升`;
   }
   if (forecast.trendDirection === 'up' && peakPop >= 40) {
-    return `未来${peakHours}小时湿润感增强`;
+    return peakHours <= 3
+      ? '湿润感正在靠近'
+      : `未来${peakHours}小时湿润感增强`;
   }
   if (forecast.trendDirection === 'down' && peakPop <= 40) {
-    return '未来数小时云雨走弱';
+    return '这波云雨正在退开';
   }
   if (peakPop <= 20) {
     return '未来数小时降水偏低';
@@ -391,13 +430,26 @@ export function getShortTermTrendText(forecastSummary, conditionCode, precipitat
   return '未来数小时变化平稳';
 }
 
-export function getOutingAdvice(forecastSummary, conditionCode, precipitationProbability, temp) {
+export function getOutingAdvice(forecastSummary, conditionCode, precipitationProbability, temp, feelsLike = temp) {
   const weatherFamily = getWeatherFamily(conditionCode);
   const forecast = normalizeShortTermForecast(forecastSummary);
   const peakPop = forecast?.peakPrecipitationProbability ?? precipitationProbability;
+  const transitionFamily = getWeatherFamily(forecast?.transitionConditionCode);
+  const rainStartHours = forecast?.rainStartOffsetHours;
+  const windRiseHours = forecast?.windRiseOffsetHours;
+  const peakHumidity = forecast?.peakHumidity;
 
   if (weatherFamily === 'rain' || weatherFamily === 'thunder') {
     return '建议带伞出门';
+  }
+  if ((transitionFamily === 'rain' || transitionFamily === 'thunder') && Number.isFinite(rainStartHours)) {
+    return rainStartHours <= 2 ? '出门前最好带伞' : '晚些外出留意降雨';
+  }
+  if (Number.isFinite(windRiseHours)) {
+    return windRiseHours <= 2 ? '外出留意风感增强' : '晚些风会更明显';
+  }
+  if (Number.isFinite(peakHumidity) && peakHumidity >= 85 && feelsLike >= 25) {
+    return '体感会比气温更闷';
   }
   if (peakPop !== null && peakPop >= 70) {
     return '备伞更稳妥';
@@ -407,6 +459,9 @@ export function getOutingAdvice(forecastSummary, conditionCode, precipitationPro
   }
   if (temp <= 5) {
     return '出门注意保暖';
+  }
+  if (feelsLike >= 30) {
+    return '外出注意闷热体感';
   }
   if (temp >= 28) {
     return '适合轻装出门';

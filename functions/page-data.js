@@ -62,7 +62,7 @@ export async function getWeatherPageData(env) {
   const dayPhase = getDayPhase(nowUnixSeconds, sunriseUnixSeconds, sunsetUnixSeconds, timezoneOffsetSeconds);
   const dayPhaseLabel = getDayPhaseLabel(dayPhase);
   const shortTermTrendText = getShortTermTrendText(shortTermForecast, conditionCode, precipitationProbability);
-  const outingAdvice = getOutingAdvice(shortTermForecast, conditionCode, precipitationProbability, temp);
+  const outingAdvice = getOutingAdvice(shortTermForecast, conditionCode, precipitationProbability, temp, feelsLike);
 
   const precipitationTitlePart = precipitationProbability === null
     ? ''
