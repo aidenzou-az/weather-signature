@@ -146,6 +146,7 @@ Example outputs:
 - City config can carry a subtle `theme` override plus a non-text `motif` layer so cities can contribute color tendency and restrained shape language without rewriting weather rules.
 - The page uses these fields only inside the landmark area and secondary surfaces; explicit city-explainer copy is intentionally avoided in the main reading flow.
 - The landmark title area should stay as a compact floating label or similarly light treatment; avoid reintroducing a heavy full-width dark strip behind the title.
+- The landmark area should read as one right-side hero scene: keep the main landmark larger and visually higher, avoid redundant glass slabs, and keep the local light direction coherent across label, motif, and ambient glow.
 
 ### HTML Language Experience
 

@@ -476,11 +476,11 @@ ${renderMeta({
     }
     .landmark-panel {
       position: relative;
-      padding: 20px 18px 16px;
+      padding: 18px 18px 14px;
       border-radius: 32px;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.035), rgba(255, 255, 255, 0.012) 22%, var(--city-wash-soft) 100%),
-        radial-gradient(circle at 26% 18%, var(--city-motif-fill) 0%, transparent 38%);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.03), rgba(255, 255, 255, 0.01) 20%, var(--city-wash-soft) 100%),
+        radial-gradient(circle at 22% 14%, var(--city-motif-fill) 0%, transparent 42%);
       border: 1px solid var(--city-outline);
       min-height: 398px;
       display: flex;
@@ -497,18 +497,19 @@ ${renderMeta({
       inset: 0;
       z-index: 0;
       pointer-events: none;
-      mask-image: linear-gradient(180deg, transparent 0%, transparent 30%, black 42%, black 100%);
+      mask-image: linear-gradient(180deg, transparent 0%, transparent 18%, black 30%, black 100%);
     }
     .landmark-panel::before {
       content: "";
       position: absolute;
-      inset: 10% 8% auto auto;
-      width: 11rem;
-      height: 11rem;
+      left: 10%;
+      top: 12%;
+      width: 13rem;
+      height: 13rem;
       border-radius: 50%;
       background: var(--city-halo);
-      opacity: calc(var(--glow-opacity) * 0.88);
-      filter: blur(14px);
+      opacity: calc(var(--glow-opacity) * 0.58);
+      filter: blur(18px);
       animation: haloPulse calc(var(--pulse-duration) * 1.2) ease-in-out infinite alternate;
     }
     .landmark-backdrop::before {
@@ -516,45 +517,32 @@ ${renderMeta({
       position: absolute;
       left: 7%;
       right: 7%;
-      top: 26%;
-      height: 31%;
+      top: 20%;
+      height: 24%;
       border-radius: 32px;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0.016) 44%, rgba(255, 255, 255, 0)),
-        radial-gradient(circle at 48% 12%, rgba(255, 255, 255, 0.12), transparent 46%),
-        radial-gradient(circle at 50% 18%, var(--city-halo), transparent 56%);
-      opacity: 0.52;
-      filter: blur(1px);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.038), rgba(255, 255, 255, 0.012) 46%, rgba(255, 255, 255, 0)),
+        radial-gradient(circle at 24% 8%, rgba(255, 255, 255, 0.14), transparent 44%),
+        radial-gradient(circle at 28% 16%, var(--city-halo), transparent 58%);
+      opacity: 0.42;
+      filter: blur(3px);
     }
     .landmark-motif {
       position: absolute;
       left: 8%;
       right: 8%;
-      top: 33%;
-      bottom: 24%;
+      top: 22%;
+      bottom: 18%;
       z-index: 0;
       color: var(--city-motif-stroke);
-      opacity: calc(var(--city-motif-opacity) * 0.88);
+      opacity: calc(var(--city-motif-opacity) * 0.7);
       mix-blend-mode: screen;
-      filter: drop-shadow(0 0 24px rgba(255, 255, 255, 0.04));
+      filter: drop-shadow(-10px -10px 24px rgba(255, 255, 255, 0.04));
     }
     .landmark-motif svg {
       display: block;
       width: 100%;
       height: 100%;
-    }
-    .landmark-plate {
-      position: absolute;
-      left: 8%;
-      right: 8%;
-      bottom: 13%;
-      height: 33%;
-      border-radius: 28px 28px 0 0;
-      background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.045), rgba(255, 255, 255, 0) 30%),
-        linear-gradient(180deg, rgba(6, 12, 24, 0), var(--city-plate) 28%, rgba(4, 10, 22, 0.56) 100%);
-      border-top: 1px solid var(--city-outline-soft);
-      opacity: 0.92;
     }
     .landmark-caption {
       position: relative;
@@ -563,56 +551,57 @@ ${renderMeta({
       justify-content: flex-start;
       align-items: center;
       margin-bottom: 0;
-      min-height: 62px;
+      min-height: 46px;
       padding: 0;
       color: rgba(231, 242, 255, 0.64);
-      font-size: 0.84rem;
+      font-size: 0.8rem;
     }
     .landmark-caption > div {
       position: relative;
       display: inline-flex;
       flex-direction: column;
-      gap: 2px;
-      max-width: min(82%, 240px);
-      padding: 10px 14px 11px;
-      border-radius: 18px;
+      gap: 1px;
+      max-width: min(68%, 188px);
+      padding: 7px 11px 8px;
+      border-radius: 14px;
       background:
-        linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(255, 255, 255, 0.024) 46%, rgba(255, 255, 255, 0.012) 100%),
-        linear-gradient(180deg, rgba(8, 15, 30, 0.46), rgba(8, 15, 30, 0.18));
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      box-shadow:
-        inset 0 1px 0 rgba(255, 255, 255, 0.08),
-        0 8px 24px rgba(4, 8, 20, 0.14);
-      backdrop-filter: blur(14px);
+        linear-gradient(180deg, rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.018) 100%),
+        linear-gradient(180deg, rgba(8, 15, 30, 0.28), rgba(8, 15, 30, 0.1));
+      border: 1px solid rgba(255, 255, 255, 0.06);
+      box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.05);
+      backdrop-filter: blur(10px);
     }
     .landmark-caption > div::before {
       content: "";
       position: absolute;
-      left: 14px;
-      right: 14px;
+      left: 10px;
+      right: 10px;
       top: 0;
       height: 1px;
       background: linear-gradient(90deg, var(--city-accent), rgba(255, 255, 255, 0));
-      opacity: 0.72;
+      opacity: 0.46;
     }
     .landmark-caption strong {
-      font-size: 1rem;
-      color: rgba(255, 255, 255, 0.9);
+      font-size: 0.94rem;
+      color: rgba(255, 255, 255, 0.86);
     }
     .landmark-caption div div {
-      color: rgba(231, 242, 255, 0.58);
+      color: rgba(231, 242, 255, 0.46);
+      font-size: 0.74rem;
     }
     .landmark-art {
       position: relative;
       z-index: 1;
       color: rgba(245, 251, 255, 0.92);
       opacity: var(--landmark-opacity);
-      transform: translateY(0);
+      transform: translate3d(-2%, -18%, 0) scale(1.18);
       animation: skylineFloat calc(var(--drift-duration) * 0.92) ease-in-out infinite alternate;
-      max-width: 100%;
-      width: 100%;
-      margin-left: auto;
-      margin-right: auto;
+      transform-origin: center bottom;
+      max-width: none;
+      width: 118%;
+      margin-left: -9%;
+      margin-right: -9%;
+      margin-bottom: -4%;
     }
     .landmark-art svg {
       display: block;
@@ -709,10 +698,10 @@ ${renderMeta({
     }
     @keyframes skylineFloat {
       from {
-        transform: translateY(10px);
+        transform: translate3d(-2%, -12%, 0) scale(1.14);
       }
       to {
-        transform: translateY(-4px);
+        transform: translate3d(-2%, -20%, 0) scale(1.19);
       }
     }
     @keyframes starPulse {
@@ -760,6 +749,12 @@ ${renderMeta({
       .landmark-panel {
         min-height: 280px;
         margin-top: 2px;
+      }
+      .landmark-art {
+        width: 108%;
+        margin-left: -4%;
+        margin-right: -4%;
+        margin-bottom: -2%;
       }
     }
     @media (max-width: 560px) {
